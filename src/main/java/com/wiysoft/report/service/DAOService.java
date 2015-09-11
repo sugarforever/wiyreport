@@ -91,7 +91,10 @@ public class DAOService {
 
             Pageable pageable = new PageRequest(0, 500);
             while (true) {
-                List<ConsumerEntity> existedConsumers = consumerEntityRepository.findAllConsumerEntitiesByCRC32(sellerId, crc32s, pageable);
+                List<ConsumerEntity> existedConsumers = new ArrayList<ConsumerEntity>();
+                if (crc32s.size() > 0) {
+                    existedConsumers.addAll(consumerEntityRepository.findAllConsumerEntitiesByCRC32(sellerId, crc32s, pageable));
+                }
                 for (ConsumerEntity existed : existedConsumers) {
                     String existedConsumerNick = existed.getConsumerNick();
                     if (newConsumersHash.containsKey(existedConsumerNick)) {

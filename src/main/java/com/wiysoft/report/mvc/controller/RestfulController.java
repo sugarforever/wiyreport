@@ -151,4 +151,9 @@ public class RestfulController {
         Page<ProductEntity> p = productEntityRepository.findAllBySellerId(visitor.getVisitorId(), new PageRequest(page, 50));
         return p.getContent();
     }
+
+    @RequestMapping(value = "/report/product-purchase/timeline/{consumerId}/{numberIid}")
+    public Object getReportProductPurchaseTimeline(@PathVariable long consumerId, @PathVariable long numberIid) {
+        return chartsReportService.reportProductPurchaseTimeline(consumerId, numberIid);
+    }
 }

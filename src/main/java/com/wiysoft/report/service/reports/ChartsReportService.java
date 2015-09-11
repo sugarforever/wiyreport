@@ -3,10 +3,16 @@ package com.wiysoft.report.service.reports;
 import com.wiysoft.report.common.CommonUtils;
 import com.wiysoft.report.common.DateTimeUtils;
 import com.wiysoft.report.common.MathUtils;
+import com.wiysoft.report.measurement.ProductPurchaseMeasurement;
+import com.wiysoft.report.repository.ProductPurchaseMeasurementRepository;
 import com.wiysoft.report.repository.TradeEntityRepository;
 import com.wiysoft.report.service.model.ChartsData;
 import com.wiysoft.report.service.model.ChartsDataset;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
@@ -22,6 +28,8 @@ public class ChartsReportService {
 
     @Autowired
     private TradeEntityRepository tradeEntityRepository;
+    @Autowired
+    private ProductPurchaseMeasurementRepository productPurchaseMeasurementRepository;
 
     public ChartsData reportSumTotalFeeBySellerIdStatusNotIn(long sellerId, List<String> status, Date startCreated, Date endCreated, String sqlDateFormat, String simpleDateFormat, int step) {
         Collection collection = tradeEntityRepository.findSumTotalFeeBySellerIdStatusNotIn(sellerId, status, startCreated, endCreated, sqlDateFormat);
@@ -73,5 +81,22 @@ public class ChartsReportService {
         }
 
         return chartsData;
+    }
+
+    public Object reportProductPurchaseTimeline(long consumerId, long numberIid) {
+        Pageable pageable = new PageRequest(0, 1000, new Sort(Sort.Direction.ASC, "payTime"));
+
+        while (true) {
+            Page<ProductPurchaseMeasurement> page = productPurchaseMeasurementRepository.findAllBySellerIdAndProductNumIid(
+                    consumerId, numberIid, pageable
+            );
+
+            if (page.hasNext()) {
+                pageable = pageable.next();
+            } else {
+                break;
+            }
+        }
+        return null;
     }
 }

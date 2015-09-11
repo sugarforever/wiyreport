@@ -3,6 +3,7 @@ package com.wiysoft.report.repository;
 import com.wiysoft.report.measurement.ProductPurchaseMeasurement;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -19,4 +20,6 @@ public interface ProductPurchaseMeasurementRepository extends JpaRepository<Prod
 
     @Query("select m from ProductPurchaseMeasurement m where m.oid in ?1")
     public Page<ProductPurchaseMeasurement> findAllByOids(Collection<Long> oids, Pageable pageable);
+
+    public Page<ProductPurchaseMeasurement> findAllBySellerIdAndProductNumIid(long sellerId, long productNumIid, Pageable pageable);
 }

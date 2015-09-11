@@ -102,6 +102,10 @@ h1 {
                 td, th {
                     &.picture {
                         width: 140px;
+
+                        img {
+                            max-width: 120px;
+                        }
                     }
 
                     &.title {
