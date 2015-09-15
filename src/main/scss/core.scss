@@ -9,15 +9,19 @@ h1 {
     margin: 0px;
 }
 
+h2 {
+    font-size: 1.2em;
+}
+
 .hide {
     display: none;
 }
 
 .top-container {
     font-size: 12px;
-    line-height: 24px;
-    height: 24px;
-    background: #000000;
+    line-height: 36px;
+    height: 36px;
+    background: #005B9A;
     color: #fafafa;
 
     .welcome {
@@ -40,7 +44,8 @@ h1 {
     }
 
     .leftnav {
-        width: 200px;
+        width: 170px;
+        background-color: #0191C8;
         float: left;
         padding-left: 24px;
         box-sizing: border-box;
@@ -49,11 +54,22 @@ h1 {
         ul {
             list-style-type: none;
             margin: 0px;
-            padding: 0px;
+            padding: 12px 0px 0px 0px;
 
             li {
                 padding-top: 6px;
                 padding-bottom: 6px;
+
+                a {
+                    text-decoration: none;
+                    color: white;
+                    font-size: 14px;
+
+                    &:hover {
+                        text-decoration: underline;
+                        color: #fcf141;
+                    }
+                }
             }
         }
     }
@@ -78,7 +94,7 @@ h1 {
                 border: none;
                 height: 29px;
                 width: 64px;
-                background-color: #007fff;
+                background-color: #8C8984;
                 color: #ffffff;
             }
         }
@@ -134,7 +150,7 @@ h1 {
                 th {
                     text-align: left;
                     font-weight: normal;
-                    background-color: #007fff;
+                    background-color: #8C8984;
                     color: #ffffff;
                     padding: 10px;
                     box-sizing: border-box;
@@ -157,6 +173,12 @@ h1 {
                     border-bottom: solid 1px #111111;
                     &:last-child {
                         border-right: solid 1px #111111;
+                    }
+
+                    &.more {
+                        a {
+                            color: #0191C8;
+                        }
                     }
                 }
             }
@@ -183,32 +205,10 @@ h1 {
 }
 
 .product-select {
-    .product-selector {
-        margin-top: 6px;
-    }
-
-    .pagination {
-        font-size: 12px;
-
-        .current {
-            margin-left: 8px;
-            margin-right: 8px;
-        }
-
-        a {
-            &.prev, &.next {
-                text-decoration: underline;
-
-                &.disabled {
-                    text-decoration: none;
-                }
-            }
-        }
-    }
 
     .product-title {
         height: 28px;
-        width: 300px;
+        width: 600px;
         font-size: 14px;
         border: solid 1px #bfbfbf;
     }
@@ -222,56 +222,105 @@ h1 {
         vertical-align: middle;
         margin-right: 8px;
         outline: 0;
-        
+
         &:hover {
             cursor: pointer;
         }
     }
 
-    table {
-        margin-top: 2px;
-        font-size: 13px;
+    .product-selector-dialog {
+        overflow-y: hidden;
 
-        tr {
-            .title {
-                width: 300px;
-                text-align: left;
+        @keyframes slide-down-frames {
+            0% {
+                height: 0%;
             }
-
-            .purchased {
-                width: 100px;
-                text-align: left;
+            100% {
+                height: 100%;
             }
         }
 
-        tr {
-            th {
-                background-color: #007fff;
-                color: white;
+        &.slide-down-anim {
+            -webkit-animation-name: slide-down-frames;
+            -moz-animation-name: slide-down-frames;
+            -o-animation-name: slide-down-frames;
+            animation-name: slide-down-frames;
+            -webkit-animation-duration: 1s;
+            -moz-animation-duration: 1s;
+            -o-animation-duration: 1s;
+            animation-duration: 1s;
+        }
+
+        .product-selector {
+            margin-top: 6px;
+        }
+
+        .pagination {
+            font-size: 12px;
+
+            .current {
+                margin-left: 8px;
+                margin-right: 8px;
             }
 
-            td, th {
-                padding: 6px;
-                border-top: solid 1px #bfbfbf;
-                border-left: solid 1px #bfbfbf;
+            a {
+                &.prev, &.next {
+                    text-decoration: underline;
+                    color: #005B9A;
+
+                    &.disabled {
+                        text-decoration: none;
+                    }
+                }
+            }
+        }
+
+        table {
+            margin-top: 2px;
+            font-size: 13px;
+
+            tr {
+                .title {
+                    width: 300px;
+                    text-align: left;
+                }
+
+                .purchased {
+                    width: 100px;
+                    text-align: left;
+                }
+            }
+
+            tr {
+                th {
+                    background-color: #8C8984;
+                    color: white;
+                }
+
+                td, th {
+                    padding: 6px;
+                    border-top: solid 1px #bfbfbf;
+                    border-left: solid 1px #bfbfbf;
+
+                    &:last-child {
+                        border-right: solid 1px #bfbfbf;
+                    }
+                }
 
                 &:last-child {
-                    border-right: solid 1px #bfbfbf;
+                    td {
+                        border-bottom: solid 1px #bfbfbf;
+                    }
                 }
-            }
-            
-            &:last-child {
-                td {
-                    border-bottom: solid 1px #bfbfbf;
-                }
-            }
 
-            &:hover {
-                background-color: #86d5f8;
-                cursor: pointer;
+                &:hover {
+                    background-color: #fcf141;
+                    cursor: pointer;
+                }
             }
         }
     }
+
 }
 
 #consumer-more-timeline {

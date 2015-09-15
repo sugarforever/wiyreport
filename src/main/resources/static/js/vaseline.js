@@ -65,6 +65,12 @@ function Vaseline() {
         });
     };
 
+    self.callPaginationApi = function(api, page, callback) {
+        $.getJSON(api + "/" + page, function(response) {
+            callback(response);
+        });
+    };
+
     self.fetchConsumers = function(page, callback) {
         $.getJSON("/rest/report/consumers/" + page, function(response) {
             callback(response);
