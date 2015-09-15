@@ -8,6 +8,7 @@ import com.wiysoft.report.repository.ProductPurchaseMeasurementRepository;
 import com.wiysoft.report.repository.TradeEntityRepository;
 import com.wiysoft.report.service.model.ChartsData;
 import com.wiysoft.report.service.model.ChartsDataset;
+import com.wiysoft.report.service.model.VisData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,9 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by weiliyang on 8/26/15.
@@ -83,13 +82,21 @@ public class ChartsReportService {
         return chartsData;
     }
 
-    public Object reportProductPurchaseTimeline(long consumerId, long numberIid) {
+    public List<VisData> reportProductPurchaseTimeline(long consumerId, long numberIid) {
         Pageable pageable = new PageRequest(0, 1000, new Sort(Sort.Direction.ASC, "payTime"));
 
+        List<VisData> visData = new ArrayList<VisData>();
+        int index = 1;
         while (true) {
-            Page<ProductPurchaseMeasurement> page = productPurchaseMeasurementRepository.findAllBySellerIdAndProductNumIid(
+            Page<ProductPurchaseMeasurement> page = productPurchaseMeasurementRepository.findAllByConsumerIdAndProductNumIid(
                     consumerId, numberIid, pageable
             );
+
+            for (ProductPurchaseMeasurement measurement : page.getContent()) {
+                VisData data = new VisData(index++, CommonUtils.parseStrFromDate(measurement.getPayTime(), "yyyy-MM-dd HH:mm:ss") + "\n" + measurement.getPayment().toString() + "元",
+                        CommonUtils.parseStrFromDate(measurement.getPayTime(), "yyyy-MM-dd HH:mm:ss"), null, null);
+                visData.add(data);
+            }
 
             if (page.hasNext()) {
                 pageable = pageable.next();
@@ -97,6 +104,23 @@ public class ChartsReportService {
                 break;
             }
         }
-        return null;
+        return visData;
+    }
+
+    public List reportProductPurchaseProductsByConsumerId(long consumerId, int page) {
+        Page queryResult = productPurchaseMeasurementRepository.findAllProductsByConsumerId(consumerId, new PageRequest(page, 100));
+        Collection collection = queryResult.getContent();
+        List products = new ArrayList();
+        for (Object obj : collection) {
+            Hashtable hash = new Hashtable();
+            Object[] objs = (Object[]) obj;
+            hash.put("numIid", objs[0]);
+            hash.put("title", objs[1]);
+            hash.put("purchased", objs[2]);
+
+            products.add(hash);
+        }
+
+        return products;
     }
 }

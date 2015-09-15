@@ -9,7 +9,6 @@ import com.wiysoft.report.service.DAOService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -34,7 +33,8 @@ public class HttpController {
     private VisitorRepository visitorRepository;
 
     private static final String REQUEST_ATTR_CATEGORY = "category";
-    private static final String REQUEST_ATTR_REPROT = "report";
+    private static final String REQUEST_ATTR_REPORT = "report";
+    private static final String REQUEST_ATTR_CONSUMER = "consumer";
     @RequestMapping("/")
     public String index(@RequestParam(required = false) String category, @RequestParam(required = false) String report, HttpServletRequest request, HttpSession session) {
         if (session.getAttribute(Constants.SESSION_ATTR_LOGIN_USER) == null) {
@@ -42,8 +42,11 @@ public class HttpController {
         }
 
         request.setAttribute(REQUEST_ATTR_CATEGORY, category == null ? wiyReportConfiguration.getDefaultCategory() : category);
-        request.setAttribute(REQUEST_ATTR_REPROT, report == null ? wiyReportConfiguration.getDefaultReport() : report);
+        request.setAttribute(REQUEST_ATTR_REPORT, report == null ? wiyReportConfiguration.getDefaultReport() : report);
 
+        String consumerId = request.getParameter("consumerId");
+        if (!StringUtils.isEmpty(consumerId))
+            request.setAttribute(REQUEST_ATTR_CONSUMER, daoService.findConsumerEntityById(Long.parseLong(consumerId)));
         return "index";
     }
 

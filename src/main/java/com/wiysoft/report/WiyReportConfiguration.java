@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Created by weiliyang on 7/24/15.
  */
-@ConfigurationProperties(prefix = "wiyreport.application", locations = "classpath:application.properties")
+@ConfigurationProperties(prefix = "wiyreport.application")
 public class WiyReportConfiguration {
 
     private String sandboxBaseAuthUrl;

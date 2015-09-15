@@ -15,6 +15,7 @@ public class ProductPurchaseMeasurement {
     @Id
     private long oid;
     private long productNumIid;
+    private String productTitle;
     private long sellerId;
     private long consumerId;
     private Date payTime;
@@ -36,6 +37,14 @@ public class ProductPurchaseMeasurement {
 
     public void setProductNumIid(long productNumIid) {
         this.productNumIid = productNumIid;
+    }
+
+    public String getProductTitle() {
+        return productTitle;
+    }
+
+    public void setProductTitle(String productTitle) {
+        this.productTitle = productTitle;
     }
 
     public long getSellerId() {

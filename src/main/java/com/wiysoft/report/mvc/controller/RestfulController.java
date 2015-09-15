@@ -156,4 +156,9 @@ public class RestfulController {
     public Object getReportProductPurchaseTimeline(@PathVariable long consumerId, @PathVariable long numberIid) {
         return chartsReportService.reportProductPurchaseTimeline(consumerId, numberIid);
     }
+
+    @RequestMapping(value = "/report/product-purchase/product/{consumerId}/{page}")
+    public Object getReportProductPurchaseProductsByConsumerId(@PathVariable long consumerId, @PathVariable int page) {
+        return chartsReportService.reportProductPurchaseProductsByConsumerId(consumerId, page);
+    }
 }

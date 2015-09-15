@@ -248,6 +248,7 @@ public class DAOService {
                 if (newMeasurement != null) {
                     existedMeasurement.setConsumerId(newMeasurement.getConsumerId());
                     existedMeasurement.setProductNumIid(newMeasurement.getProductNumIid());
+                    existedMeasurement.setProductTitle(newMeasurement.getProductTitle());
                     existedMeasurement.setSellerId(newMeasurement.getSellerId());
                     existedMeasurement.setPayTime(newMeasurement.getPayTime());
                     existedMeasurement.setPayment(newMeasurement.getPayment());
@@ -353,6 +354,7 @@ public class DAOService {
                     m.setPayment(orderEntity.getPayment());
                     m.setPayTime(tradeEntity.getPayTime());
                     m.setProductNumIid(orderEntity.getNumberIid());
+                    m.setProductTitle(orderEntity.getTitle());
                     m.setSellerId(sellerId);
 
                     measurements.put(orderEntity.getOid(), m);
@@ -441,5 +443,9 @@ public class DAOService {
             insertOrUpdateProductEntities(productEntityHashtable);
             productEntityHashtable.clear();
         }
+    }
+
+    public ConsumerEntity findConsumerEntityById(long consumerId) {
+        return consumerEntityRepository.findOne(consumerId);
     }
 }

@@ -4,6 +4,7 @@
 function Vaseline() {
     var self = this;
     self.charts = [];
+    self.productSelectionListeners = [];
 
     self.init = function() {
         Chart.defaults.global.responsive = true;
@@ -46,24 +47,7 @@ function Vaseline() {
             chart = new Chart(context).Bar(response, {});
             self.charts[context] = chart;
         });
-    }
-
-    self.fetchConsumersMatrix = function(page) {
-        var consumersMatrixTableBody = $(".centerwell .consumer-matrix tbody");;
-        consumersMatrixTableBody.empty();
-
-        $.getJSON("/rest/report/consumers/" + page, function(response) {
-            $.each(response, function(k, v) {
-                var row = $('<tr class="consumer"></tr>');
-                row.append($('<td class="nick">' + v.consumerNick + '</td>'));
-                row.append($('<td class="count-of-bills">' + v.countOfBills + '</td>'));
-                row.append($('<td class="first-paid">' + v.strFirstPaid + '</td>'));
-                row.append($('<td class="latest-paid">' + v.strLatestPaid + '</td>'));
-
-                consumersMatrixTableBody.append(row);
-            });
-        });
-    }
+    };
 
     self.fetchProducts = function(tableBodySelector, page) {
         var tableBody = $(tableBodySelector);
@@ -79,5 +63,36 @@ function Vaseline() {
                 tableBody.append(row);
             });
         });
-    }
+    };
+
+    self.fetchConsumers = function(page, callback) {
+        $.getJSON("/rest/report/consumers/" + page, function(response) {
+            callback(response);
+        });
+    };
+
+    self.fetchProductPurchasedByConsumer = function(consumerId, page, callback) {
+        $.getJSON("/rest/report/product-purchase/product/" + consumerId + "/" + page, function(response) {
+            callback(response);
+        });
+    };
+
+    self.fetchProductPurchaseTimeline = function(consumerId, numberIid, callback) {
+        $.getJSON("/rest/report/product-purchase/timeline/" + consumerId + "/" + numberIid, function(dataset) {
+            callback(dataset);
+        });
+    };
+
+    self.addProductSelectionListener = function(listener) {
+        if (listener != null && listener != undefined) {
+            self.productSelectionListeners.push(listener);
+        }
+    };
+
+    self.onProductSelected = function(productNumIid, productTitle) {
+        for (var i = 0; i < self.productSelectionListeners.length; ++i) {
+            var func = self.productSelectionListeners[i];
+            func(productNumIid, productTitle);
+        }
+    };
 }

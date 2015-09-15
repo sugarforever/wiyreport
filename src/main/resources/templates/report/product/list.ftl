@@ -17,4 +17,6 @@
             vaseline.fetchProducts(".centerwell .product-matrix tbody", 0);
         });
     </script>
+
+    <#include "../../modules/consumer-selector.ftl">
 </div>

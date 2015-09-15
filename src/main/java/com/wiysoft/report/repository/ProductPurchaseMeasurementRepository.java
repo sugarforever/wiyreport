@@ -21,5 +21,8 @@ public interface ProductPurchaseMeasurementRepository extends JpaRepository<Prod
     @Query("select m from ProductPurchaseMeasurement m where m.oid in ?1")
     public Page<ProductPurchaseMeasurement> findAllByOids(Collection<Long> oids, Pageable pageable);
 
-    public Page<ProductPurchaseMeasurement> findAllBySellerIdAndProductNumIid(long sellerId, long productNumIid, Pageable pageable);
+    public Page<ProductPurchaseMeasurement> findAllByConsumerIdAndProductNumIid(long consumerId, long productNumIid, Pageable pageable);
+
+    @Query("select m.productNumIid, m.productTitle, count(m.oid) as purchased from ProductPurchaseMeasurement m where m.consumerId = ?1 group by m.productNumIid order by purchased desc")
+    public Page findAllProductsByConsumerId(long consumerId, Pageable pageable);
 }

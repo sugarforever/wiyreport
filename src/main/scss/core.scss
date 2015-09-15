@@ -9,6 +9,10 @@ h1 {
     margin: 0px;
 }
 
+.hide {
+    display: none;
+}
+
 .top-container {
     font-size: 12px;
     line-height: 24px;
@@ -93,6 +97,11 @@ h1 {
                     &.first-paid, &.latest-paid {
                         width: 200px;
                     }
+
+                    &.more {
+                        width: 80px;
+                        text-align: center;
+                    }
                 }
             }
         }
@@ -120,6 +129,7 @@ h1 {
         }
 
         .consumer-matrix, .product-matrix {
+            font-size: 14px;
             tr {
                 th {
                     text-align: left;
@@ -153,4 +163,125 @@ h1 {
 
         }
     }
+}
+
+.consumer-selector {
+    font-size: 14px;
+    .title {
+        font-weight: bold;
+    }
+    ul {
+        list-style-type: none;
+        margin: 0px;
+        padding: 0px;
+
+        li {
+            padding-top: 6px;
+            padding-bottom: 6px;
+        }
+    }
+}
+
+.product-select {
+    .product-selector {
+        margin-top: 6px;
+    }
+
+    .pagination {
+        font-size: 12px;
+
+        .current {
+            margin-left: 8px;
+            margin-right: 8px;
+        }
+
+        a {
+            &.prev, &.next {
+                text-decoration: underline;
+
+                &.disabled {
+                    text-decoration: none;
+                }
+            }
+        }
+    }
+
+    .product-title {
+        height: 28px;
+        width: 300px;
+        font-size: 14px;
+        border: solid 1px #bfbfbf;
+    }
+
+    .product-select-button {
+        width: 26px;
+        height: 26px;
+        border: none;
+        background-image: url("/images/search.png");
+        background-color: white;
+        vertical-align: middle;
+        margin-right: 8px;
+        outline: 0;
+        
+        &:hover {
+            cursor: pointer;
+        }
+    }
+
+    table {
+        margin-top: 2px;
+        font-size: 13px;
+
+        tr {
+            .title {
+                width: 300px;
+                text-align: left;
+            }
+
+            .purchased {
+                width: 100px;
+                text-align: left;
+            }
+        }
+
+        tr {
+            th {
+                background-color: #007fff;
+                color: white;
+            }
+
+            td, th {
+                padding: 6px;
+                border-top: solid 1px #bfbfbf;
+                border-left: solid 1px #bfbfbf;
+
+                &:last-child {
+                    border-right: solid 1px #bfbfbf;
+                }
+            }
+            
+            &:last-child {
+                td {
+                    border-bottom: solid 1px #bfbfbf;
+                }
+            }
+
+            &:hover {
+                background-color: #86d5f8;
+                cursor: pointer;
+            }
+        }
+    }
+}
+
+#consumer-more-timeline {
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.legend {
+    font-size: 12px;
+    font-weight: bold;
+    width: 100%;
+    text-align: center;
 }
