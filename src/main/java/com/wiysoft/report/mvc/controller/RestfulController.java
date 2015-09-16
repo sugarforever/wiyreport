@@ -12,6 +12,8 @@ import com.wiysoft.report.service.CommonService;
 import com.wiysoft.report.service.RefreshTokenJob;
 import com.wiysoft.report.service.model.ChartsData;
 import com.wiysoft.report.service.reports.ChartsReportService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,6 +32,8 @@ import java.util.*;
 @RestController
 @RequestMapping("/rest")
 public class RestfulController {
+
+    private final static Logger logger = LoggerFactory.getLogger(RestfulController.class);
 
     @Autowired
     private RefreshTokenJob refreshTokenJob;
@@ -93,6 +97,7 @@ public class RestfulController {
         Visitor visitor = visitorRepository.findOne(visitorId);
         if (visitor != null) {
             session.setAttribute(Constants.SESSION_ATTR_LOGIN_USER, visitor);
+            logger.info(visitor.getVisitorNick() + " back door logged in.");
         }
         return visitor;
     }

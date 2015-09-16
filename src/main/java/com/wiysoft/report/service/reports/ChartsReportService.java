@@ -9,6 +9,8 @@ import com.wiysoft.report.repository.TradeEntityRepository;
 import com.wiysoft.report.service.model.ChartsData;
 import com.wiysoft.report.service.model.ChartsDataset;
 import com.wiysoft.report.service.model.VisData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,6 +26,8 @@ import java.util.*;
  */
 @Service
 public class ChartsReportService {
+
+    private final static Logger logger = LoggerFactory.getLogger(ChartsReportService.class);
 
     @Autowired
     private TradeEntityRepository tradeEntityRepository;
@@ -83,6 +87,7 @@ public class ChartsReportService {
     }
 
     public List<VisData> reportProductPurchaseTimeline(long consumerId, long numberIid) {
+        logger.debug("Generate report of product purchase timeline.");
         Pageable pageable = new PageRequest(0, 1000, new Sort(Sort.Direction.ASC, "payTime"));
 
         List<VisData> visData = new ArrayList<VisData>();
