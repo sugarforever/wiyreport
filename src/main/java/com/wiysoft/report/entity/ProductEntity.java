@@ -91,4 +91,19 @@ public class ProductEntity {
     public void setSkuPropertiesName(String skuPropertiesName) {
         this.skuPropertiesName = skuPropertiesName;
     }
+
+    public ProductEntity(Long numberIid, Long sellerId, String title, String picturePath, Float price, String skuId, String outerSkuId, String skuPropertiesName) {
+        this.numberIid = numberIid;
+        this.sellerId = sellerId;
+        this.title = title;
+        this.picturePath = picturePath;
+        this.price = price;
+        this.skuId = skuId;
+        this.outerSkuId = outerSkuId;
+        this.skuPropertiesName = skuPropertiesName;
+    }
+
+    public ProductEntity() {
+
+    }
 }

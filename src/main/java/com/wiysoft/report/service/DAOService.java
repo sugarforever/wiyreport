@@ -61,175 +61,57 @@ public class DAOService {
     public void buildConsumersBy(long sellerId) {
         Pageable pageRequest = new PageRequest(0, 500);
         while (true) {
-            List consumersIndex = tradeEntityRepository.findAllConsumersIndex(sellerId, pageRequest);
+            Page<Object[]> consumersIndex = tradeEntityRepository.findAllConsumersIndex(sellerId, pageRequest);
 
             Hashtable<String, ConsumerEntity> newConsumersHash = new Hashtable<String, ConsumerEntity>();
             List<Long> crc32s = new ArrayList<Long>();
-            for (Object consumerIndex : consumersIndex) {
-                String consumerNick = (String) ((Object[]) consumerIndex)[0];
-                Date firstPaid = (Date) ((Object[]) consumerIndex)[1];
-                Date latestPaid = (Date) ((Object[]) consumerIndex)[2];
-                Long countOfBills = (Long) ((Object[]) consumerIndex)[3];
+            for (Object[] consumerIndex : consumersIndex) {
+                String consumerNick = (String) consumerIndex[0];
+                Date firstPaid = (Date) consumerIndex[1];
+                Date latestPaid = (Date) consumerIndex[2];
+                Long countOfBills = (Long) consumerIndex[3];
                 long crc32 = CommonUtils.getCRC32(consumerNick);
 
                 if (!crc32s.contains(crc32)) {
                     crc32s.add(crc32);
                 }
 
-                ConsumerEntity consumerEntity = new ConsumerEntity();
-                consumerEntity.setConsumerNick(consumerNick);
-                consumerEntity.setConsumerNickCrc32(crc32);
-                consumerEntity.setSellerId(sellerId);
-                consumerEntity.setFirstPaid(firstPaid);
-                consumerEntity.setLatestPaid(latestPaid);
-                consumerEntity.setCountOfBills(countOfBills);
-
-                if (!newConsumersHash.contains(crc32)) {
+                ConsumerEntity consumerEntity = new ConsumerEntity(sellerId, crc32, consumerNick, firstPaid, latestPaid, countOfBills);
+                if (!newConsumersHash.contains(consumerNick)) {
                     newConsumersHash.put(consumerNick, consumerEntity);
                 }
             }
+            if (crc32s.size() > 0) {
+                Pageable pageable = new PageRequest(0, 500);
+                while (true) {
+                    Page<ConsumerEntity> p = consumerEntityRepository.findAllConsumerEntitiesByCRC32(sellerId, crc32s, pageable);
+                    List<ConsumerEntity> existedConsumers = p.getContent();
 
-            Pageable pageable = new PageRequest(0, 500);
-            while (true) {
-                List<ConsumerEntity> existedConsumers = new ArrayList<ConsumerEntity>();
-                if (crc32s.size() > 0) {
-                    existedConsumers.addAll(consumerEntityRepository.findAllConsumerEntitiesByCRC32(sellerId, crc32s, pageable));
-                }
-                for (ConsumerEntity existed : existedConsumers) {
-                    String existedConsumerNick = existed.getConsumerNick();
-                    if (newConsumersHash.containsKey(existedConsumerNick)) {
-                        ConsumerEntity newConsumerEntity = newConsumersHash.get(existedConsumerNick);
-                        existed.setCountOfBills(newConsumerEntity.getCountOfBills());
-                        existed.setLatestPaid(newConsumerEntity.getLatestPaid());
-                        existed.setFirstPaid(newConsumerEntity.getFirstPaid());
-                        newConsumersHash.put(existedConsumerNick, existed);
+                    for (ConsumerEntity existed : existedConsumers) {
+                        String existedConsumerNick = existed.getConsumerNick();
+                        if (newConsumersHash.containsKey(existedConsumerNick)) {
+                            ConsumerEntity newConsumerEntity = newConsumersHash.get(existedConsumerNick);
+                            existed.setCountOfBills(newConsumerEntity.getCountOfBills());
+                            existed.setLatestPaid(newConsumerEntity.getLatestPaid());
+                            existed.setFirstPaid(newConsumerEntity.getFirstPaid());
+                            newConsumersHash.put(existedConsumerNick, existed);
+                        }
+                    }
+
+                    if (!p.hasNext()) {
+                        break;
+                    } else {
+                        pageable = pageable.next();
                     }
                 }
-
-                if (existedConsumers.size() < 500) {
-                    break;
-                }
             }
-
             consumerEntityRepository.save(newConsumersHash.values());
-
-            if (consumersIndex.size() < 500) {
+            if (!consumersIndex.hasNext()) {
                 break;
-            }
-            pageRequest = pageRequest.next();
-        }
-    }
-
-    @Deprecated
-    @Transactional
-    public void insertOrUpdateConsumerEntities(long sellerId, List<TradeEntity> tradeEntities) {
-        if (tradeEntities == null || tradeEntities.isEmpty()) {
-            return;
-        }
-
-        Hashtable<String, Long> nickToCountOfTradeEntitiesHash = new Hashtable<String, Long>();
-        Hashtable<String, Date> nickToFirstPaidHash = new Hashtable<String, Date>();
-        Hashtable<String, Date> nickToLatestPaidHash = new Hashtable<String, Date>();
-
-        List crc32s = new ArrayList();
-        for (TradeEntity tradeEntity : tradeEntities) {
-            if (sellerId != tradeEntity.getSellerId()) {
-                continue;
-            }
-
-            String buyerNick = tradeEntity.getBuyerNick();
-
-            if (!crc32s.contains(tradeEntity.getBuyerNickCrc32())) {
-                crc32s.add(tradeEntity.getBuyerNickCrc32());
-            }
-
-            if (!nickToCountOfTradeEntitiesHash.containsKey(buyerNick)) {
-                nickToCountOfTradeEntitiesHash.put(buyerNick, 1L);
             } else {
-                nickToCountOfTradeEntitiesHash.put(buyerNick, nickToCountOfTradeEntitiesHash.get(buyerNick) + 1L);
-            }
-
-            if (!nickToFirstPaidHash.containsKey(buyerNick)) {
-                nickToFirstPaidHash.put(buyerNick, tradeEntity.getPayTime());
-            } else {
-                Date firstPaidInHash = nickToFirstPaidHash.get(buyerNick);
-                if (tradeEntity.getPayTime() != null && (firstPaidInHash == null || tradeEntity.getPayTime().before(firstPaidInHash))) {
-                    nickToFirstPaidHash.put(buyerNick, tradeEntity.getPayTime());
-                }
-            }
-
-            if (!nickToLatestPaidHash.containsKey(buyerNick)) {
-                nickToLatestPaidHash.put(buyerNick, tradeEntity.getPayTime());
-            } else {
-                Date latestPaidInHash = nickToLatestPaidHash.get(buyerNick);
-                if (tradeEntity.getPayTime() != null && (latestPaidInHash == null || tradeEntity.getPayTime().after(latestPaidInHash))) {
-                    nickToLatestPaidHash.put(buyerNick, tradeEntity.getPayTime());
-                }
+                pageRequest = pageRequest.next();
             }
         }
-
-        Pageable pageable = new PageRequest(0, 1000);
-        while (true) {
-            List<ConsumerEntity> existedConsumerEntities = consumerEntityRepository.findAllConsumerEntitiesByCRC32(sellerId, crc32s, pageable);
-            for (ConsumerEntity consumerEntity : existedConsumerEntities) {
-                String existedConsumerNick = consumerEntity.getConsumerNick();
-                if (nickToCountOfTradeEntitiesHash.containsKey(existedConsumerNick)) {
-                    consumerEntity.setCountOfBills(consumerEntity.getCountOfBills() + nickToCountOfTradeEntitiesHash.get(existedConsumerNick));
-                    nickToCountOfTradeEntitiesHash.remove(existedConsumerNick);
-                }
-
-                if (nickToFirstPaidHash.containsKey(existedConsumerNick)) {
-                    Date firstPaid = nickToFirstPaidHash.get(existedConsumerNick);
-                    if (firstPaid != null) {
-                        if (consumerEntity.getFirstPaid() == null || consumerEntity.getFirstPaid().after(firstPaid)) {
-                            consumerEntity.setFirstPaid(firstPaid);
-                        }
-                    }
-
-                    nickToFirstPaidHash.remove(existedConsumerNick);
-                }
-
-                if (nickToLatestPaidHash.containsKey(existedConsumerNick)) {
-                    Date latestPaid = nickToLatestPaidHash.get(existedConsumerNick);
-                    if (latestPaid != null) {
-                        if (consumerEntity.getLatestPaid() == null || latestPaid.after(consumerEntity.getLatestPaid())) {
-                            consumerEntity.setLatestPaid(latestPaid);
-                        }
-                    }
-
-                    nickToLatestPaidHash.remove(existedConsumerNick);
-                }
-            }
-
-            consumerEntityRepository.save(existedConsumerEntities);
-            if (existedConsumerEntities.size() < 1000) {
-                break;
-            }
-        }
-
-        nickToCountOfTradeEntitiesHash = new Hashtable<String, Long>();
-        nickToFirstPaidHash = new Hashtable<String, Date>();
-        nickToLatestPaidHash = new Hashtable<String, Date>();
-
-        List<ConsumerEntity> newConsumerEntities = new ArrayList<ConsumerEntity>();
-        Set<Map.Entry<String, Long>> entrySet = nickToCountOfTradeEntitiesHash.entrySet();
-        for (Iterator<Map.Entry<String, Long>> it = entrySet.iterator(); it.hasNext(); ) {
-            Map.Entry<String, Long> entry = it.next();
-            String nick = entry.getKey();
-            Long incrementalCountOfBills = entry.getValue();
-
-            ConsumerEntity newConsumerEntity = new ConsumerEntity();
-            newConsumerEntity.setCountOfBills(incrementalCountOfBills);
-            newConsumerEntity.setLatestPaid(nickToLatestPaidHash.get(nick));
-            newConsumerEntity.setFirstPaid(nickToFirstPaidHash.get(nick));
-            newConsumerEntity.setSellerId(sellerId);
-            newConsumerEntity.setConsumerNickCrc32(CommonUtils.getCRC32(nick));
-            newConsumerEntity.setConsumerNick(nick);
-
-            newConsumerEntities.add(newConsumerEntity);
-        }
-
-        consumerEntityRepository.save(newConsumerEntities);
     }
 
     public void insertOrUpdateProductPurchaseMeasurement(Hashtable<Long, ProductPurchaseMeasurement> measurements) {
@@ -336,32 +218,27 @@ public class DAOService {
             Page<TradeEntity> page = tradeEntityRepository.findAllBySellerIdAndPayTime(sellerId, dateStart, dateEnd, pageable);
             List<TradeEntity> tradeEntities = page.getContent();
 
-
-            for (TradeEntity tradeEntity : tradeEntities) {
-                List<OrderEntity> orderEntities = tradeEntity.getOrderEntities();
-                for (OrderEntity orderEntity : orderEntities) {
-                    ConsumerEntity consumer = consumerEntityRepository.findOneByConsumerNickCrc32AndConsumerNick(
-                            CommonUtils.getCRC32(tradeEntity.getBuyerNick()), tradeEntity.getBuyerNick());
-                    if (consumer == null) {
+            if (tradeEntities.size() > 0) {
+                List crc32s = getCrc32sListByTradeEntities(tradeEntities);
+                Hashtable<String, ConsumerEntity> consumerEntityHashtable = getConsumerEntityHashtableByConsumerNickCrc32s(sellerId, crc32s);
+                for (TradeEntity tradeEntity : tradeEntities) {
+                    ConsumerEntity consumerEntity = consumerEntityHashtable.get(tradeEntity.getBuyerNick());
+                    if (consumerEntity == null) {
                         System.out.println("Consumer " + tradeEntity.getBuyerNick() + " of seller ID " + sellerId + " doesn't exist.");
                         continue;
                     }
-                    ProductPurchaseMeasurement m = new ProductPurchaseMeasurement();
-                    m.setConsumerId(consumer.getId());
-                    m.setNumber(orderEntity.getNumber());
-                    m.setPrice(orderEntity.getPrice());
-                    m.setOid(orderEntity.getOid());
-                    m.setPayment(orderEntity.getPayment());
-                    m.setPayTime(tradeEntity.getPayTime());
-                    m.setProductNumIid(orderEntity.getNumberIid());
-                    m.setProductTitle(orderEntity.getTitle());
-                    m.setSellerId(sellerId);
 
-                    measurements.put(orderEntity.getOid(), m);
+                    List<OrderEntity> orderEntities = tradeEntity.getOrderEntities();
+                    for (OrderEntity orderEntity : orderEntities) {
+                        ProductPurchaseMeasurement m = new ProductPurchaseMeasurement(orderEntity.getOid(), orderEntity.getNumberIid(),
+                                orderEntity.getTitle(), sellerId, consumerEntity.getId(), tradeEntity.getPayTime(), orderEntity.getPayment(),
+                                orderEntity.getNumber(), orderEntity.getPrice());
 
-                    if (measurements.size() >= 1000) {
-                        insertOrUpdateProductPurchaseMeasurement(measurements);
-                        measurements.clear();
+                        measurements.put(orderEntity.getOid(), m);
+                        if (measurements.size() >= 1000) {
+                            insertOrUpdateProductPurchaseMeasurement(measurements);
+                            measurements.clear();
+                        }
                     }
                 }
             }
@@ -377,6 +254,36 @@ public class DAOService {
             insertOrUpdateProductPurchaseMeasurement(measurements);
             measurements.clear();
         }
+    }
+
+    private List getCrc32sListByTradeEntities(List<TradeEntity> tradeEntities) {
+        List crc32s = new ArrayList();
+        for (TradeEntity tradeEntity : tradeEntities) {
+            Long crc32 = CommonUtils.getCRC32(tradeEntity.getBuyerNick());
+            if (!crc32s.contains(crc32)) {
+                crc32s.add(crc32);
+            }
+        }
+        return crc32s;
+    }
+
+    private Hashtable<String, ConsumerEntity> getConsumerEntityHashtableByConsumerNickCrc32s(Long sellerId, List crc32s) {
+        Hashtable<String, ConsumerEntity> consumerEntityHashtable = new Hashtable<String, ConsumerEntity>();
+        Pageable pagination = new PageRequest(0, 1000);
+        while (true) {
+            Page<ConsumerEntity> queryPage = consumerEntityRepository.findAllConsumerEntitiesByCRC32(sellerId, crc32s, pagination);
+            for (ConsumerEntity e : queryPage.getContent()) {
+                consumerEntityHashtable.put(e.getConsumerNick(), e);
+            }
+
+            if (queryPage.hasNext()) {
+                pagination = pagination.next();
+            } else {
+                break;
+            }
+        }
+
+        return consumerEntityHashtable;
     }
 
     public void buildProductEntitiesBy(Date dateStart, Date dateEnd) {
@@ -411,17 +318,9 @@ public class DAOService {
             for (TradeEntity tradeEntity : tradeEntities) {
                 List<OrderEntity> orderEntities = tradeEntity.getOrderEntities();
                 for (OrderEntity orderEntity : orderEntities) {
-
-                    ProductEntity productEntity = new ProductEntity();
-                    productEntity.setPrice(orderEntity.getPrice());
-                    productEntity.setNumberIid(orderEntity.getNumberIid());
-                    productEntity.setSellerId(sellerId);
-                    productEntity.setOuterSkuId(orderEntity.getOuterSkuId());
-                    productEntity.setPicturePath(orderEntity.getPicturePath());
-                    productEntity.setSkuId(orderEntity.getSkuId());
-                    productEntity.setSkuPropertiesName(orderEntity.getSkuPropertiesName());
-                    productEntity.setTitle(orderEntity.getTitle());
-
+                    ProductEntity productEntity = new ProductEntity(orderEntity.getNumberIid(), sellerId, orderEntity.getTitle(),
+                            orderEntity.getPicturePath(), orderEntity.getPrice(), orderEntity.getSkuId(),
+                            orderEntity.getOuterSkuId(), orderEntity.getSkuPropertiesName());
                     productEntityHashtable.put(orderEntity.getNumberIid(), productEntity);
 
                     insertOrUpdateProductEntitiesWithThresholdAndClear(productEntityHashtable, 1000);

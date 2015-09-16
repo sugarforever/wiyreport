@@ -1,4 +1,4 @@
-<div class="centerwell">
+<div class="consumer-list">
     <h1 class="report-title">买家统计</h1>
     <table class="consumer-matrix" cellpadding="0" cellspacing="0">
         <thead>
@@ -15,7 +15,7 @@
     </table>
 
     <script type="text/javascript">
-        var consumersMatrixTableBody = $(".centerwell .consumer-matrix tbody");;
+        var consumersMatrixTableBody = $(".consumer-list .consumer-matrix tbody");;
         consumersMatrixTableBody.empty();
         $(document).ready(function(){
             vaseline.fetchConsumers(0, function(response) {

@@ -32,7 +32,11 @@ h2 {
 .center-container {
     box-sizing: border-box;
     width: 100%;
-    padding-right: 36px;
+    height: 100%;
+    padding-top: 36px;
+    position: absolute;
+    top: 0;
+    left: 0;
 
     canvas {
         margin-bottom: 10px;
@@ -77,13 +81,15 @@ h2 {
     .centerwell {
         width: auto;
         margin-left: 200px;
+        height: 100%;
+        overflow-y: scroll;
+        padding-right: 36px;
 
         .datetime-form {
             .datetimepicker {
                 font-size: 14px;
                 padding: 4px;
                 width: 120px;
-                text-align: center;
                 margin-left: 4px;
                 vertical-align: middle;
             }

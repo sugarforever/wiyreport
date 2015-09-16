@@ -1,4 +1,4 @@
-<div class="centerwell">
+<div class="trade-total-fee">
     <h1 class="report-title">订单金额报表</h1>
     <form class="datetime-form" action="#">
         <div>

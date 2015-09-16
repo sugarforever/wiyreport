@@ -42,7 +42,7 @@ public interface TradeEntityRepository extends JpaRepository<TradeEntity, Long> 
     public List findAllDistinctConsumerNicks(long sellerId, Pageable pageable);
 
     @Query("select t.buyerNick, MIN(t.payTime), MAX(t.payTime), COUNT(t.tid) from TradeEntity t where t.sellerId = ?1 group by t.buyerNickCrc32, t.buyerNick")
-    public List findAllConsumersIndex(long sellerId, Pageable pageable);
+    public Page<Object[]> findAllConsumersIndex(long sellerId, Pageable pageable);
 
     @Modifying
     @Query("update TradeEntity t set t.buyerNickCrc32=CRC32(t.buyerNick)")

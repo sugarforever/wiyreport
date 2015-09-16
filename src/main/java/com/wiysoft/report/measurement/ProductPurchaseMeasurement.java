@@ -23,6 +23,22 @@ public class ProductPurchaseMeasurement {
     private Long number;
     private Float price;
 
+    public ProductPurchaseMeasurement(long oid, long productNumIid, String productTitle, long sellerId, long consumerId, Date payTime, Float payment, Long number, Float price) {
+        this.oid = oid;
+        this.productNumIid = productNumIid;
+        this.productTitle = productTitle;
+        this.sellerId = sellerId;
+        this.consumerId = consumerId;
+        this.payTime = payTime;
+        this.payment = payment;
+        this.number = number;
+        this.price = price;
+    }
+
+    public ProductPurchaseMeasurement() {
+
+    }
+
     public long getOid() {
         return oid;
     }

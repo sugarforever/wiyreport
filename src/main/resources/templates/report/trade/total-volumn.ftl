@@ -1,4 +1,4 @@
-<div class="centerwell">
+<div class="trade-total-volumn">
     <h1 class="report-title">订单量报表</h1>
     <form class="datetime-form" action="#">
         <div>

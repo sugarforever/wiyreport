@@ -89,4 +89,17 @@ public class ConsumerEntity {
         String str = CommonUtils.parseStrFromDate(latestPaid, "yyyy-MM-dd HH:mm:ss");
         return str == null ? "" : str;
     }
+
+    public ConsumerEntity() {
+
+    }
+
+    public ConsumerEntity(Long sellerId, Long consumerNickCrc32, String consumerNick, Date firstPaid, Date latestPaid, long countOfBills) {
+        this.sellerId = sellerId;
+        this.consumerNickCrc32 = consumerNickCrc32;
+        this.consumerNick = consumerNick;
+        this.firstPaid = firstPaid;
+        this.latestPaid = latestPaid;
+        this.countOfBills = countOfBills;
+    }
 }

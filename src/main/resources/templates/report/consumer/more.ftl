@@ -1,8 +1,8 @@
-<div class="centerwell consumer-more">
+<div class="consumer-more">
     <h1 class="report-title">买家分析</h1>
     <h2><label>买家昵称:&nbsp;</label>${Request.consumer.consumerNick}</h2>
     <div class="product-select">
-        <input type="button" class="product-select-button" /><input type="text" disabled class="product-title" />
+        <input type="button" class="product-select-button" /><input type="text" disabled class="product-title" placeholder="点击图标选择商品进行购买行为分析"/>
         <script type="text/javascript">
             function closeProductSelectorDialog() {
                 var dlg = $(".product-selector-dialog");

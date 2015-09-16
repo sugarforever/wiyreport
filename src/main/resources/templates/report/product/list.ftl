@@ -1,4 +1,4 @@
-<div class="centerwell">
+<div class="product-list">
     <h1 class="report-title">商品分析</h1>
     <table class="product-matrix" cellpadding="0" cellspacing="0">
         <thead>
@@ -14,9 +14,7 @@
 
     <script type="text/javascript">
         $(document).ready(function(){
-            vaseline.fetchProducts(".centerwell .product-matrix tbody", 0);
+            vaseline.fetchProducts(".product-list .product-matrix tbody", 0);
         });
     </script>
-
-    <#include "../../modules/consumer-selector.ftl">
 </div>
