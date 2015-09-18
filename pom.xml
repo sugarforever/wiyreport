@@ -45,6 +45,12 @@
         </dependency>
 
         <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.6</version>
+        </dependency>
+
+        <dependency>
             <groupId>taobao-sdk</groupId>
             <artifactId>taobao-sdk</artifactId>
             <version>20150807</version>

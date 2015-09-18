@@ -197,6 +197,8 @@ public class CommonService {
             daoService.buildProductPurchaseForSeller(visitor.getVisitorId(), yesterday, today);
             // rebuild produce entities
             daoService.buildProductEntitiesForSeller(visitor.getVisitorId(), yesterday, today);
+            // build product purchase combo measurements
+            daoService.buildProductPurchaseComboMeasurements();
         }
     }
 

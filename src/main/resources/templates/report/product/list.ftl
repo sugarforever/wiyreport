@@ -1,5 +1,7 @@
+<#import "../../modules/pagination-bar.ftl" as paginationBar>
 <div class="product-list">
-    <h1 class="report-title">商品分析</h1>
+    <h1 class="report-title">商品列表</h1>
+    <@paginationBar.pagination divId="product-list-pagination-bar" api="/rest/report/products/" page=0 callback="rebuildProductMatrixTable" />
     <table class="product-matrix" cellpadding="0" cellspacing="0">
         <thead>
         <tr class="product">
@@ -13,8 +15,17 @@
     </table>
 
     <script type="text/javascript">
-        $(document).ready(function(){
-            vaseline.fetchProducts(".product-list .product-matrix tbody", 0);
-        });
+        function rebuildProductMatrixTable(products) {
+            var tableBody = $(".product-list .product-matrix tbody");
+            tableBody.empty();
+            $.each(products, function(k, v) {
+                var row = $('<tr class="product"></tr>');
+                row.append($('<td class="picture"><img src="' + v.picturePath + '"/></td>'));
+                row.append($('<td class="title">' + v.title + '</td>'));
+                row.append($('<td class="price">' + v.price + '</td>'));
+
+                tableBody.append(row);
+            });
+        }
     </script>
 </div>

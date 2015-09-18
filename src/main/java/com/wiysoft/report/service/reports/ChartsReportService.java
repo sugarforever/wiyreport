@@ -3,12 +3,18 @@ package com.wiysoft.report.service.reports;
 import com.wiysoft.report.common.CommonUtils;
 import com.wiysoft.report.common.DateTimeUtils;
 import com.wiysoft.report.common.MathUtils;
+import com.wiysoft.report.entity.ProductEntity;
 import com.wiysoft.report.measurement.ProductPurchaseMeasurement;
+import com.wiysoft.report.repository.ProductEntityRepository;
+import com.wiysoft.report.repository.ProductPurchaseComboMeasurementRepository;
 import com.wiysoft.report.repository.ProductPurchaseMeasurementRepository;
 import com.wiysoft.report.repository.TradeEntityRepository;
 import com.wiysoft.report.service.model.ChartsData;
 import com.wiysoft.report.service.model.ChartsDataset;
 import com.wiysoft.report.service.model.VisData;
+import com.wiysoft.report.service.model.network.Data;
+import com.wiysoft.report.service.model.network.Edge;
+import com.wiysoft.report.service.model.network.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +38,11 @@ public class ChartsReportService {
     @Autowired
     private TradeEntityRepository tradeEntityRepository;
     @Autowired
+    private ProductEntityRepository productEntityRepository;
+    @Autowired
     private ProductPurchaseMeasurementRepository productPurchaseMeasurementRepository;
+    @Autowired
+    private ProductPurchaseComboMeasurementRepository productPurchaseComboMeasurementRepository;
 
     public ChartsData reportSumTotalFeeBySellerIdStatusNotIn(long sellerId, List<String> status, Date startCreated, Date endCreated, String sqlDateFormat, String simpleDateFormat, int step) {
         Collection collection = tradeEntityRepository.findSumTotalFeeBySellerIdStatusNotIn(sellerId, status, startCreated, endCreated, sqlDateFormat);
@@ -127,5 +137,64 @@ public class ChartsReportService {
         }
 
         return products;
+    }
+
+    public Data reportProductPurchaseComboBySellerIdAndPayTime(long sellerId, Date startPayTime, Date endPayTime) {
+        Date now = Calendar.getInstance().getTime();
+
+        Pageable pageRequest = new PageRequest(0, 1000);
+        Hashtable<Long, Node> hashNodes = new Hashtable<Long, Node>();
+        Hashtable<String, Edge> hashEdges = new Hashtable<String, Edge>();
+        while (true) {
+            Page<Object[]> page = productPurchaseComboMeasurementRepository.findProductPurchaseComboAndCountBySellerIdAndPayTime(sellerId,
+                    (startPayTime == null ? new Date(0) : startPayTime), (endPayTime == null ? now : endPayTime), pageRequest);
+
+            for (Object[] objs : page.getContent()) {
+                Long productNumberIid = (Long) objs[0];
+                Long anotherProductNumberIid = (Long) objs[1];
+                Long countOfTradeBills = (Long) objs[2];
+
+                if (!hashNodes.containsKey(productNumberIid)) {
+                    hashNodes.put(productNumberIid, new Node(productNumberIid, 1, null));
+                } else {
+                    hashNodes.get(productNumberIid).incrementValue(1);
+                }
+
+                if (!hashNodes.containsKey(anotherProductNumberIid)) {
+                    hashNodes.put(anotherProductNumberIid, new Node(anotherProductNumberIid, 1, null));
+                } else {
+                    hashNodes.get(anotherProductNumberIid).incrementValue(1);
+                }
+
+                String edgeKey = String.valueOf(productNumberIid) + String.valueOf(anotherProductNumberIid);
+                if (hashEdges.containsKey(edgeKey)) {
+                    hashEdges.get(edgeKey).incrementValue(countOfTradeBills);
+                } else {
+                    hashEdges.put(edgeKey, new Edge(productNumberIid, anotherProductNumberIid, countOfTradeBills, String.valueOf(countOfTradeBills)));
+                }
+            }
+
+            Pageable numberIidPageRequest = new PageRequest(0, 1000);
+            while (true) {
+                Page<ProductEntity> productEntities = productEntityRepository.findAllByNumberIids(hashNodes.keySet(), numberIidPageRequest);
+                for (ProductEntity e : productEntities.getContent()) {
+                    if (hashNodes.containsKey(e.getNumberIid())) {
+                        hashNodes.get(e.getNumberIid()).setLabel(e.getTitle());
+                    }
+                }
+                if (productEntities.hasNext()) {
+                    numberIidPageRequest = numberIidPageRequest.next();
+                } else {
+                    break;
+                }
+            }
+            if (!page.hasNext()) {
+                break;
+            } else {
+                pageRequest = pageRequest.next();
+            }
+        }
+
+        return new Data(new ArrayList<Node>(hashNodes.values()), new ArrayList<Edge>(hashEdges.values()));
     }
 }

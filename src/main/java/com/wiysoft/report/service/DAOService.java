@@ -2,6 +2,8 @@ package com.wiysoft.report.service;
 
 import com.wiysoft.report.common.CommonUtils;
 import com.wiysoft.report.entity.*;
+import com.wiysoft.report.measurement.ProductPurchaseComboMeasurement;
+import com.wiysoft.report.measurement.ProductPurchaseComboMeasurementPK;
 import com.wiysoft.report.measurement.ProductPurchaseMeasurement;
 import com.wiysoft.report.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,8 @@ public class DAOService {
     private ConsumerEntityRepository consumerEntityRepository;
     @Autowired
     private ProductPurchaseMeasurementRepository productPurchaseMeasurementRepository;
+    @Autowired
+    private ProductPurchaseComboMeasurementRepository productPurchaseComboMeasurementRepository;
     @Autowired
     private ProductEntityRepository productEntityRepository;
 
@@ -346,5 +350,69 @@ public class DAOService {
 
     public ConsumerEntity findConsumerEntityById(long consumerId) {
         return consumerEntityRepository.findOne(consumerId);
+    }
+
+    @Transactional
+    public void buildProductPurchaseComboMeasurements() {
+        Date maxPayTimeInProductPurchaseComboMeasurements = productPurchaseComboMeasurementRepository.findMaxPayTime();
+        Date dateStart = (maxPayTimeInProductPurchaseComboMeasurements == null ? new Date(0) : maxPayTimeInProductPurchaseComboMeasurements);
+        Date dateEnd = Calendar.getInstance().getTime();
+
+        List<ProductPurchaseComboMeasurement> measurements = new ArrayList<ProductPurchaseComboMeasurement>();
+
+        Pageable pageRequest = new PageRequest(0, 1000);
+        while (true) {
+            Page<TradeEntity> page = tradeEntityRepository.findAllByPayTime(dateStart, dateEnd, pageRequest);
+            for (TradeEntity tradeEntity : page.getContent()) {
+                List<OrderEntity> orders = tradeEntity.getOrderEntities();
+                if (orders == null || orders.size() < 2) {
+                    continue;
+                }
+
+                Collections.sort(orders, new OrderEntity.OrderEntityNumberIidAscComparator());
+                int len = orders.size();
+
+                for (int i = 0; i < len - 1; ++i) {
+                    for (int j = i + 1; j < len; ++j) {
+                        OrderEntity o1 = orders.get(i);
+                        OrderEntity o2 = orders.get(j);
+
+                        ProductPurchaseComboMeasurement measurement = new ProductPurchaseComboMeasurement();
+                        ProductPurchaseComboMeasurementPK pk = new ProductPurchaseComboMeasurementPK();
+                        pk.setTid(tradeEntity.getTid());
+                        pk.setProductOid(o1.getOid());
+                        pk.setAnotherProductOid(o2.getOid());
+                        measurement.setProductPurchaseComboMeasurementPK(pk);
+                        measurement.setSellerId(tradeEntity.getSellerId());
+                        measurement.setProductNumberIid(o1.getNumberIid());
+                        measurement.setAnotherProductNumberIid(o2.getNumberIid());
+                        measurement.setPayTime(tradeEntity.getPayTime());
+
+                        measurements.add(measurement);
+                    }
+                }
+
+                insertOrUpdateProductPurchaseComboMeasurementWithThresholdAndClear(measurements, 500);
+            }
+
+            if (page.hasNext()) {
+                pageRequest = pageRequest.next();
+            } else {
+                break;
+            }
+        }
+
+        insertOrUpdateProductPurchaseComboMeasurementWithThresholdAndClear(measurements, 1);
+    }
+
+    private void insertOrUpdateProductPurchaseComboMeasurementWithThresholdAndClear(List<ProductPurchaseComboMeasurement> measurements, int threshold) {
+        if (measurements != null && measurements.size() >= threshold) {
+            productPurchaseComboMeasurementRepository.save(measurements);
+            measurements.clear();
+        }
+    }
+
+    public Date findMaxPayTimeInProductPurchaseMeasurement() {
+        return productPurchaseComboMeasurementRepository.findMaxPayTime();
     }
 }

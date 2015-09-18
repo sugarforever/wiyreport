@@ -50,4 +50,7 @@ public interface TradeEntityRepository extends JpaRepository<TradeEntity, Long> 
 
     @Query("select t from TradeEntity t where t.sellerId = ?1 and t.payTime >= ?2 and t.payTime < ?3")
     public Page<TradeEntity> findAllBySellerIdAndPayTime(long sellerId, Date startPayTime, Date endPayTime, Pageable pageable);
+
+    @Query("select t from TradeEntity t where t.payTime >= ?1 and t.payTime < ?2")
+    public Page<TradeEntity> findAllByPayTime(Date startPayTime, Date endPayTime, Pageable pageable);
 }

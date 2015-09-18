@@ -1,6 +1,8 @@
 package com.wiysoft.report.entity;
 
 import javax.persistence.*;
+import javax.persistence.criteria.Order;
+import java.util.Comparator;
 import java.util.Date;
 
 /**
@@ -423,5 +425,19 @@ public class OrderEntity {
         this.tmserSpuCode = tmserSpuCode;
     }
 
+    public static final class OrderEntityNumberIidAscComparator implements Comparator<OrderEntity> {
 
+        @Override
+        public int compare(OrderEntity o1, OrderEntity o2) {
+            if (o1 == null || o1.getNumberIid() == null) {
+                return -1;
+            }
+
+            if (o2 == null || o2.getNumberIid() == null) {
+                return 1;
+            }
+
+            return o1.getNumberIid().compareTo(o2.getNumberIid());
+        }
+    }
 }

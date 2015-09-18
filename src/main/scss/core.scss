@@ -262,26 +262,6 @@ h2 {
             margin-top: 6px;
         }
 
-        .pagination {
-            font-size: 12px;
-
-            .current {
-                margin-left: 8px;
-                margin-right: 8px;
-            }
-
-            a {
-                &.prev, &.next {
-                    text-decoration: underline;
-                    color: #005B9A;
-
-                    &.disabled {
-                        text-decoration: none;
-                    }
-                }
-            }
-        }
-
         table {
             margin-top: 2px;
             font-size: 13px;
@@ -328,6 +308,26 @@ h2 {
         }
     }
 
+}
+
+.pagination {
+    font-size: 12px;
+
+    .current {
+        margin-left: 8px;
+        margin-right: 8px;
+    }
+
+    a {
+        &.prev, &.next {
+            text-decoration: underline;
+            color: #005B9A;
+
+            &.disabled {
+                text-decoration: none;
+            }
+        }
+    }
 }
 
 #consumer-more-timeline {

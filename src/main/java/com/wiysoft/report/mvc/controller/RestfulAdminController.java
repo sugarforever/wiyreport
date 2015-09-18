@@ -82,4 +82,10 @@ public class RestfulAdminController {
         daoService.buildProductEntitiesBy(new Date(0), Calendar.getInstance().getTime());
         return null;
     }
+
+    @RequestMapping("/build-product-purchase-combo/")
+    public Object buildAllProductPurchaseComboMeasurements() {
+        daoService.buildProductPurchaseComboMeasurements();
+        return CommonUtils.parseStrFromDate(daoService.findMaxPayTimeInProductPurchaseMeasurement(), "yyyy-MM-dd HH:mm:ss");
+    }
 }

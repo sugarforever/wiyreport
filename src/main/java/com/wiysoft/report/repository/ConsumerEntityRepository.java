@@ -26,7 +26,7 @@ public interface ConsumerEntityRepository extends JpaRepository<ConsumerEntity, 
     public Page<ConsumerEntity> findAllConsumerEntitiesByCRC32(long sellerId, Collection crc32s, Pageable pageable);
 
     @Query("select c from ConsumerEntity c where c.sellerId = ?1 order by c.countOfBills desc")
-    public List findAllConsumerEntitiesOrderByCountOfBills(long sellerId, Pageable pageable);
+    public Page<ConsumerEntity> findAllConsumerEntitiesOrderByCountOfBills(long sellerId, Pageable pageable);
 
     public List findAllBySellerId(long sellerId, Pageable pageable);
 

@@ -1,6 +1,9 @@
 package com.wiysoft.report.mvc.controller;
 
 import com.wiysoft.report.Constants;
+import com.wiysoft.report.common.CommonUtils;
+import com.wiysoft.report.common.DateTimeUtils;
+import com.wiysoft.report.entity.ConsumerEntity;
 import com.wiysoft.report.entity.ProductEntity;
 import com.wiysoft.report.entity.Visitor;
 import com.wiysoft.report.mvc.model.TimeRange;
@@ -144,7 +147,8 @@ public class RestfulController {
         if (visitor == null) {
             return null;
         }
-        return consumerEntityRepository.findAllConsumerEntitiesOrderByCountOfBills(visitor.getVisitorId(), new PageRequest(page, 50));
+        Page<ConsumerEntity> consumerEntitiesPage = consumerEntityRepository.findAllConsumerEntitiesOrderByCountOfBills(visitor.getVisitorId(), new PageRequest(page, 50));
+        return consumerEntitiesPage.getContent();
     }
 
     @RequestMapping(value = "/report/products/{page}")
@@ -165,5 +169,23 @@ public class RestfulController {
     @RequestMapping(value = "/report/product-purchase/product/{consumerId}/{page}")
     public Object getReportProductPurchaseProductsByConsumerId(@PathVariable long consumerId, @PathVariable int page) {
         return chartsReportService.reportProductPurchaseProductsByConsumerId(consumerId, page);
+    }
+
+    @RequestMapping(value = "/report/product-purchase-combo/")
+    public Object getReportProductPurchaseComboBy(HttpSession session) {
+        return getReportProductPurchaseComboBy(null, null, session);
+    }
+
+    @RequestMapping(value = "/report/product-purchase-combo/{startDate}/{endDate}/")
+    public Object getReportProductPurchaseComboBy(@PathVariable String startDate, @PathVariable String endDate, HttpSession session) {
+        Visitor visitor = (Visitor) session.getAttribute(Constants.SESSION_ATTR_LOGIN_USER);
+        if (visitor == null) {
+            return null;
+        }
+
+        Date dateStart = (startDate == null ? new Date(0) : CommonUtils.parseStrToDate(startDate, "yyyy-MM-dd"));
+        Date dateEnd = (endDate == null ? DateTimeUtils.dateAdjust(Calendar.getInstance().getTime(), Calendar.DAY_OF_YEAR, 1) :
+                DateTimeUtils.dateAdjust(CommonUtils.parseStrToDate(endDate, "yyyy-MM-dd"), Calendar.DAY_OF_YEAR, 1));
+        return chartsReportService.reportProductPurchaseComboBySellerIdAndPayTime(visitor.getVisitorId(), dateStart, dateEnd);
     }
 }
