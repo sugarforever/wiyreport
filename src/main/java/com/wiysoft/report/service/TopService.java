@@ -9,6 +9,8 @@ import com.taobao.api.request.UserGetRequest;
 import com.taobao.api.response.TradesSoldGetResponse;
 import com.taobao.api.response.UserGetResponse;
 import com.wiysoft.report.WiyReportConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,8 @@ import java.net.URLEncoder;
  */
 @Service
 public class TopService {
+
+    private final static Logger logger = LoggerFactory.getLogger(TopService.class);
 
     @Autowired
     private WiyReportConfiguration wiyReportConfiguration;
@@ -39,7 +43,7 @@ public class TopService {
             UserGetResponse response = client.execute(request, sessionKey);
             user = response.getUser();
         } catch (ApiException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
 
         return user;

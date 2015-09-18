@@ -1,6 +1,8 @@
 package com.wiysoft.report.service;
 
 import com.wiysoft.report.common.CommonUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +14,8 @@ import java.util.Date;
 @Component
 public class BuildProductPurchaseJob implements Job {
 
+    private final static Logger logger = LoggerFactory.getLogger(BuildProductPurchaseJob.class);
+
     @Autowired
     private DAOService daoService;
 
@@ -20,7 +24,7 @@ public class BuildProductPurchaseJob implements Job {
     @Override
     public void run(Object param) {
         if (param != null && (param instanceof Object[])) {
-            System.out.println(String.format("%s started.", BuildProductPurchaseJob.class.getCanonicalName()));
+            logger.debug(String.format("%s started.", BuildProductPurchaseJob.class.getCanonicalName()));
             running = true;
 
             Object[] params = (Object[]) param;

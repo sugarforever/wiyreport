@@ -1,5 +1,7 @@
 package com.wiysoft.report.common;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import java.text.ParseException;
@@ -12,6 +14,8 @@ import java.util.zip.CRC32;
  */
 public final class CommonUtils {
 
+    private final static Logger logger = LoggerFactory.getLogger(CommonUtils.class);
+
     public static final Date parseStrToDate(String strDate, String fmt) {
         if (StringUtils.isEmpty(strDate) || StringUtils.isEmpty(fmt)) {
             return null;
@@ -23,7 +27,7 @@ public final class CommonUtils {
         try {
             parsed = sdf.parse(strDate);
         } catch (ParseException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
 
         return parsed;
@@ -48,7 +52,7 @@ public final class CommonUtils {
         try {
             return Float.parseFloat(str);
         } catch (NumberFormatException ex) {
-            ex.printStackTrace();
+            logger.error(ex.getMessage(), ex);
             return defaultValue;
         }
     }

@@ -2,6 +2,8 @@ package com.wiysoft.report.service;
 
 import com.taobao.api.internal.util.WebUtils;
 import com.wiysoft.report.entity.Visitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.json.JsonParserFactory;
@@ -15,6 +17,8 @@ import java.util.Map;
  */
 @Component
 public class RefreshTokenJob implements Job {
+
+    private final static Logger logger = LoggerFactory.getLogger(RefreshTokenJob.class);
 
     @Autowired
     private CommonService commonService;
@@ -34,7 +38,7 @@ public class RefreshTokenJob implements Job {
         try {
             response = WebUtils.doPost(refreshTokenUrl, null, 30 * 1000 * 60, 30 * 1000 * 60);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
 
         if (response != null) {
@@ -54,7 +58,7 @@ public class RefreshTokenJob implements Job {
 
                     daoService.insertOrUpdateVisitor(visitor);
                 } catch (NumberFormatException ex) {
-                    ex.printStackTrace();
+                    logger.error(ex.getMessage(), ex);
                 }
             }
         }

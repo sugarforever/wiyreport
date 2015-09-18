@@ -3,6 +3,8 @@ package com.wiysoft.report.scheduled;
 import com.wiysoft.report.entity.Visitor;
 import com.wiysoft.report.repository.VisitorRepository;
 import com.wiysoft.report.service.RefreshTokenJob;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.data.domain.Page;
@@ -24,6 +26,8 @@ import java.util.concurrent.TimeUnit;
 @EnableScheduling
 public class ScheduledRefreshTokenTask {
 
+    private final static Logger logger = LoggerFactory.getLogger(ScheduledRefreshTokenTask.class);
+
     @Autowired
     private RefreshTokenJob refreshTokenJob;
     @Autowired
@@ -34,10 +38,10 @@ public class ScheduledRefreshTokenTask {
     @Scheduled(cron = "${wiyreport.application.refreshTokenJobExecutionCron}")
     public void execute() {
         if (refreshTokenJob.isRunning()) {
-            System.out.println(refreshTokenJob.getClass().getCanonicalName() + " is still running.");
+            logger.debug(refreshTokenJob.getClass().getCanonicalName() + " is still running.");
             return;
         } else {
-            System.out.println("Job is about to start execution.");
+            logger.debug("Job is about to start execution.");
         }
 
         executor.execute(new Runnable() {

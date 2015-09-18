@@ -7,7 +7,6 @@ import com.taobao.api.domain.Trade;
 import com.taobao.api.internal.util.WebUtils;
 import com.taobao.api.request.TradesSoldGetRequest;
 import com.taobao.api.response.TradesSoldGetResponse;
-import com.taobao.top.link.embedded.websocket.util.StringUtil;
 import com.wiysoft.report.WiyReportConfiguration;
 import com.wiysoft.report.common.DateTimeUtils;
 import com.wiysoft.report.common.EntityBuilder;
@@ -16,6 +15,8 @@ import com.wiysoft.report.entity.Visitor;
 import com.wiysoft.report.repository.TradeEntityRepository;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.tomcat.util.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -31,6 +32,8 @@ import java.util.*;
 
 @Service
 public class CommonService {
+
+    private final static Logger logger = LoggerFactory.getLogger(CommonService.class);
 
     @Autowired
     private WiyReportConfiguration wiyReportConfiguration;
@@ -74,8 +77,7 @@ public class CommonService {
             String sessionKeyEncoder = URLEncoder.encode(sessionKey, "utf-8");
             refreshUrl = wiyReportConfiguration.getRefreshTokenUrl() + "appkey=" + appkeyEncoder + "&refresh_token=" + refreshTokenEncoder + "&sessionkey=" + sessionKeyEncoder + "&sign=" + signEncoder;
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            ;
+            logger.error(e.getMessage(), e);
         }
 
         return refreshUrl;
@@ -95,7 +97,7 @@ public class CommonService {
         try {
             jsonResponse = WebUtils.doPost(url, props, 30000, 30000);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
 
         return jsonResponse;
@@ -110,7 +112,7 @@ public class CommonService {
         try {
             keyValues = new String(Base64.decodeBase64(strTopParams.getBytes(encode)), encode);
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
         String[] kvPairs = keyValues.split("\\&");
         Map<String, String> map = new HashMap<String, String>();
@@ -141,8 +143,7 @@ public class CommonService {
 
         Date createdStart = getQueryStartDate(visitor);
 
-        System.out.println(String.format("About to synchronize trades for %s since %s",
-                visitor.getVisitorNick(), createdStart.toString()));
+        logger.debug(String.format("About to synchronize trades for %s since %s", visitor.getVisitorNick(), createdStart.toString()));
 
         DefaultTaobaoClient client = new DefaultTaobaoClient(wiyReportConfiguration.getRestfulApi(),
                 wiyReportConfiguration.getAppKey(),
@@ -185,12 +186,10 @@ public class CommonService {
                 ++pageNumber;
             }
         } catch (ApiException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         } finally {
             // rebuild consumer entities
             daoService.buildConsumersBy(visitor.getVisitorId());
-            System.out.println(CommonService.class.getCanonicalName() + " finished.");
-
             // rebuild product purchase
             Date today = Calendar.getInstance().getTime();
             Date yesterday = DateTimeUtils.dateAdjust(today, Calendar.DAY_OF_YEAR, -1);
@@ -199,6 +198,8 @@ public class CommonService {
             daoService.buildProductEntitiesForSeller(visitor.getVisitorId(), yesterday, today);
             // build product purchase combo measurements
             daoService.buildProductPurchaseComboMeasurements();
+
+            logger.debug(CommonService.class.getCanonicalName() + " finished.");
         }
     }
 

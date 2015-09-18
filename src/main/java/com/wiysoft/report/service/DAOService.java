@@ -6,6 +6,8 @@ import com.wiysoft.report.measurement.ProductPurchaseComboMeasurement;
 import com.wiysoft.report.measurement.ProductPurchaseComboMeasurementPK;
 import com.wiysoft.report.measurement.ProductPurchaseMeasurement;
 import com.wiysoft.report.repository.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +22,8 @@ import java.util.*;
  */
 @Service
 public class DAOService {
+
+    private final static Logger logger = LoggerFactory.getLogger(DAOService.class);
 
     @Autowired
     private VisitorRepository visitorRepository;
@@ -228,7 +232,7 @@ public class DAOService {
                 for (TradeEntity tradeEntity : tradeEntities) {
                     ConsumerEntity consumerEntity = consumerEntityHashtable.get(tradeEntity.getBuyerNick());
                     if (consumerEntity == null) {
-                        System.out.println("Consumer " + tradeEntity.getBuyerNick() + " of seller ID " + sellerId + " doesn't exist.");
+                        logger.warn("Consumer " + tradeEntity.getBuyerNick() + " of seller ID " + sellerId + " doesn't exist.");
                         continue;
                     }
 
