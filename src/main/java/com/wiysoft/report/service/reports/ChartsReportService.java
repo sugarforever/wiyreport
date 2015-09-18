@@ -139,15 +139,22 @@ public class ChartsReportService {
         return products;
     }
 
-    public Data reportProductPurchaseComboBySellerIdAndPayTime(long sellerId, Date startPayTime, Date endPayTime) {
+    public Data reportProductPurchaseComboBySellerIdAndPayTime(long sellerId, Date startPayTime, Date endPayTime, Long numberIid) {
         Date now = Calendar.getInstance().getTime();
 
         Pageable pageRequest = new PageRequest(0, 1000);
         Hashtable<Long, Node> hashNodes = new Hashtable<Long, Node>();
         Hashtable<String, Edge> hashEdges = new Hashtable<String, Edge>();
         while (true) {
-            Page<Object[]> page = productPurchaseComboMeasurementRepository.findProductPurchaseComboAndCountBySellerIdAndPayTime(sellerId,
-                    (startPayTime == null ? new Date(0) : startPayTime), (endPayTime == null ? now : endPayTime), pageRequest);
+            Page<Object[]> page = null;
+
+            Date startDate = (startPayTime == null ? new Date(0) : startPayTime);
+            Date endDate = (endPayTime == null ? now : endPayTime);
+            if (numberIid == null) {
+                page = productPurchaseComboMeasurementRepository.findProductPurchaseComboAndCountBySellerIdAndPayTime(sellerId, startDate, endDate, pageRequest);
+            } else {
+                page = productPurchaseComboMeasurementRepository.findProductPurchaseComboAndCountBySellerIdProductNumberIidAndPayTime(sellerId, numberIid, startDate, endDate, pageRequest);
+            }
 
             for (Object[] objs : page.getContent()) {
                 Long productNumberIid = (Long) objs[0];
@@ -174,18 +181,20 @@ public class ChartsReportService {
                 }
             }
 
-            Pageable numberIidPageRequest = new PageRequest(0, 1000);
-            while (true) {
-                Page<ProductEntity> productEntities = productEntityRepository.findAllByNumberIids(hashNodes.keySet(), numberIidPageRequest);
-                for (ProductEntity e : productEntities.getContent()) {
-                    if (hashNodes.containsKey(e.getNumberIid())) {
-                        hashNodes.get(e.getNumberIid()).setLabel(e.getTitle());
+            if (hashNodes.size() > 0) {
+                Pageable numberIidPageRequest = new PageRequest(0, 1000);
+                while (true) {
+                    Page<ProductEntity> productEntities = productEntityRepository.findAllByNumberIids(hashNodes.keySet(), numberIidPageRequest);
+                    for (ProductEntity e : productEntities.getContent()) {
+                        if (hashNodes.containsKey(e.getNumberIid())) {
+                            hashNodes.get(e.getNumberIid()).setLabel(e.getTitle());
+                        }
                     }
-                }
-                if (productEntities.hasNext()) {
-                    numberIidPageRequest = numberIidPageRequest.next();
-                } else {
-                    break;
+                    if (productEntities.hasNext()) {
+                        numberIidPageRequest = numberIidPageRequest.next();
+                    } else {
+                        break;
+                    }
                 }
             }
             if (!page.hasNext()) {

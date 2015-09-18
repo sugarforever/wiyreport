@@ -29,7 +29,7 @@
             });
         </script>
         <div class="product-selector-dialog hide">
-            <#include "../../_widget/product-selector.ftl">
+            <#include "../../_widget/purchased-product-selector.ftl">
         </div>
     </div>
     <div id="consumer-more-timeline"></div>
