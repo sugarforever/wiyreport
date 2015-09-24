@@ -186,7 +186,7 @@ public class ChartsReportService {
                 }
 
                 if (createdGroupNode == null) {
-                    createdGroupNode = new GroupNode(connectedNode.getId(), countOfTradeBills, 1 + "件商品", "group" + connectedNode.getId());
+                    createdGroupNode = new GroupNode(connectedNode.getId(), countOfTradeBills, 1 + "件商品", null);
                     hashGroupedNodes.put(createdGroupNode.getId(), createdGroupNode);
                 }
                 createdGroupNode.appendUserObject(connectedNode);
@@ -195,6 +195,9 @@ public class ChartsReportService {
                 String edgeKey = String.valueOf(selfNode.getId()) + String.valueOf(createdGroupNode.getId());
                 if (!hashEdges.containsKey(edgeKey)) {
                     hashEdges.put(edgeKey, new Edge(selfNode.getId(), createdGroupNode.getId(), countOfTradeBills, String.valueOf(countOfTradeBills)));
+                }
+                for (Object obj : createdGroupNode.getUserObjects()) {
+                    ((Node) obj).setValue(countOfTradeBills);
                 }
             }
 
@@ -213,7 +216,9 @@ public class ChartsReportService {
                         }*/
                         Long iid = e.getNumberIid();
                         if (cachedNodes.containsKey(iid)) {
-                            cachedNodes.get(iid).setLabel(e.getTitle());
+                            Node cachedNode = cachedNodes.get(iid);
+                            cachedNode.setLabel(e.getTitle());
+                            cachedNode.setPicture(e.getPicturePath());
                         }
                     }
                     if (productEntities.hasNext()) {

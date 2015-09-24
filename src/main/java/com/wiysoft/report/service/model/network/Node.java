@@ -12,6 +12,7 @@ public class Node {
     protected long id;
     protected long value;
     protected String label;
+    protected String picture;
     protected String group;
 
     public long getId() {
@@ -44,6 +45,14 @@ public class Node {
 
     public void setGroup(String group) {
         this.group = group;
+    }
+
+    public String getPicture() {
+        return picture;
+    }
+
+    public void setPicture(String picture) {
+        this.picture = picture;
     }
 
     public Node(long id, long value, String label, String group) {

@@ -349,10 +349,66 @@ h2 {
 }
 
 .product-combo {
-    #product-combo-network-topo {
-        margin-top: 10px;
-        margin-bottom: 10px;
-        background-color: #f2faff;
-        border: solid 1px #005B9A;
+    .product-combo-report {
+
+        .product-combo-selected-node {
+            float: right;
+            display: none;
+
+            &.show-connected-nodes {
+                width: 300px;
+                display: inline;
+            }
+
+            .summary {
+                font-size: 12px;
+                margin-bottom: 4px;
+                border-left: solid 2px #005B9A;
+                padding-left: 4px;
+
+                label.times {
+                    font-size: 12px;
+                    font-weight: bold;
+                    color: #0191C8;
+                }
+            }
+            table {
+                tr {
+                    &:first-child {
+                        td {
+                            border-top: solid 1px #e4e9f0;
+                        }
+                    }
+
+                    td {
+                        border-right: solid 1px #e4e9f0;
+                        border-bottom: solid 1px #e4e9f0;
+                        &:first-child {
+                            border-left: solid 1px #e4e9f0;
+                        }
+
+                        padding: 4px;
+                        font-size: 12px;
+
+                        &.picture {
+                            img {
+                                width: 40px;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        .product-combo-network-topo-wrapper {
+            #product-combo-network-topo {
+                margin-top: 10px;
+                margin-bottom: 10px;
+                background-color: #f2faff;
+            }
+            &.show-connected-nodes {
+                margin-right: 306px;
+            }
+        }
     }
 }
