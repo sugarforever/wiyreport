@@ -6,4 +6,4 @@
 target/
 *.iml
 *.log
-src/main/resources/static/css/*
+src/main/resources/static/css/core.css*

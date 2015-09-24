@@ -268,13 +268,19 @@ h2 {
 
             tr {
                 .title {
-                    width: 300px;
+                    width: 400px;
                     text-align: left;
                 }
 
                 .purchased {
                     width: 100px;
                     text-align: left;
+                }
+
+                .picture {
+                    img {
+                        width: 40px;
+                    }
                 }
             }
 
@@ -285,7 +291,7 @@ h2 {
                 }
 
                 td, th {
-                    padding: 6px;
+                    padding: 4px;
                     border-top: solid 1px #bfbfbf;
                     border-left: solid 1px #bfbfbf;
 
@@ -340,4 +346,13 @@ h2 {
     font-weight: bold;
     width: 100%;
     text-align: center;
+}
+
+.product-combo {
+    #product-combo-network-topo {
+        margin-top: 10px;
+        margin-bottom: 10px;
+        background-color: #f2faff;
+        border: solid 1px #005B9A;
+    }
 }

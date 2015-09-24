@@ -219,6 +219,7 @@ public class DAOService {
         }
     }
 
+    @Transactional
     public void buildProductPurchaseForSeller(Long sellerId, Date dateStart, Date dateEnd) {
         Pageable pageable = new PageRequest(0, 1000);
         Hashtable<Long, ProductPurchaseMeasurement> measurements = new Hashtable<Long, ProductPurchaseMeasurement>();
@@ -317,6 +318,7 @@ public class DAOService {
         }
     }
 
+    @Transactional
     public void buildProductEntitiesForSeller(long sellerId, Date dateStart, Date dateEnd) {
         Pageable pageable = new PageRequest(0, 1000);
         Hashtable<Long, ProductEntity> productEntityHashtable = new Hashtable<Long, ProductEntity>();

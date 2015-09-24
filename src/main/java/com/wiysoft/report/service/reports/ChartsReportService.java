@@ -14,6 +14,7 @@ import com.wiysoft.report.service.model.ChartsDataset;
 import com.wiysoft.report.service.model.VisData;
 import com.wiysoft.report.service.model.network.Data;
 import com.wiysoft.report.service.model.network.Edge;
+import com.wiysoft.report.service.model.network.GroupNode;
 import com.wiysoft.report.service.model.network.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.security.acl.Group;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -139,55 +141,79 @@ public class ChartsReportService {
         return products;
     }
 
-    public Data reportProductPurchaseComboBySellerIdAndPayTime(long sellerId, Date startPayTime, Date endPayTime, Long numberIid) {
+    public Data reportProductPurchaseComboBySellerIdAndPayTime(long sellerId, Date startPayTime, Date endPayTime, long numberIid) {
         Date now = Calendar.getInstance().getTime();
 
         Pageable pageRequest = new PageRequest(0, 1000);
-        Hashtable<Long, Node> hashNodes = new Hashtable<Long, Node>();
+        Hashtable<Long, Node> hashGroupedNodes = new Hashtable<Long, Node>();
         Hashtable<String, Edge> hashEdges = new Hashtable<String, Edge>();
+        Hashtable<Long, Node> cachedNodes = new Hashtable<Long, Node>();
         while (true) {
-            Page<Object[]> page = null;
-
             Date startDate = (startPayTime == null ? new Date(0) : startPayTime);
             Date endDate = (endPayTime == null ? now : endPayTime);
-            if (numberIid == null) {
-                page = productPurchaseComboMeasurementRepository.findProductPurchaseComboAndCountBySellerIdAndPayTime(sellerId, startDate, endDate, pageRequest);
-            } else {
-                page = productPurchaseComboMeasurementRepository.findProductPurchaseComboAndCountBySellerIdProductNumberIidAndPayTime(sellerId, numberIid, startDate, endDate, pageRequest);
-            }
+            Page<Object[]> page = productPurchaseComboMeasurementRepository.findProductPurchaseComboAndCountBySellerIdProductNumberIidAndPayTime(sellerId, numberIid, startDate, endDate, pageRequest);
 
             for (Object[] objs : page.getContent()) {
                 Long productNumberIid = (Long) objs[0];
                 Long anotherProductNumberIid = (Long) objs[1];
                 Long countOfTradeBills = (Long) objs[2];
 
-                if (!hashNodes.containsKey(productNumberIid)) {
-                    hashNodes.put(productNumberIid, new Node(productNumberIid, 1, null));
+                Node selfNode = (productNumberIid.equals(numberIid) ? new Node(productNumberIid, 1, null, "group1") : new Node(anotherProductNumberIid, 1, null, "group1"));
+                Node connectedNode = (productNumberIid.equals(numberIid) ? new Node(anotherProductNumberIid, 1, null, "group1") : new Node(productNumberIid, 1, null, "group1"));
+
+                if (!cachedNodes.containsKey(selfNode.getId())) {
+                    cachedNodes.put(selfNode.getId(), selfNode);
+                }
+                cachedNodes.put(connectedNode.getId(), connectedNode);
+
+                // Handle self node.
+                if (!hashGroupedNodes.containsKey(selfNode.getId())) {
+                    hashGroupedNodes.put(selfNode.getId(), selfNode);
                 } else {
-                    hashNodes.get(productNumberIid).incrementValue(1);
+                    hashGroupedNodes.get(selfNode.getId()).incrementValue(1);
                 }
 
-                if (!hashNodes.containsKey(anotherProductNumberIid)) {
-                    hashNodes.put(anotherProductNumberIid, new Node(anotherProductNumberIid, 1, null));
-                } else {
-                    hashNodes.get(anotherProductNumberIid).incrementValue(1);
+                // Handle connected node.
+                GroupNode createdGroupNode = null;
+                for (Node createdNode : hashGroupedNodes.values()) {
+                    if (createdNode instanceof GroupNode) {
+                        GroupNode n = (GroupNode) createdNode;
+                        if (n.getValue() == countOfTradeBills.longValue()) {
+                            createdGroupNode = n;
+                            break;
+                        }
+                    }
                 }
 
-                String edgeKey = String.valueOf(productNumberIid) + String.valueOf(anotherProductNumberIid);
-                if (hashEdges.containsKey(edgeKey)) {
-                    hashEdges.get(edgeKey).incrementValue(countOfTradeBills);
-                } else {
-                    hashEdges.put(edgeKey, new Edge(productNumberIid, anotherProductNumberIid, countOfTradeBills, String.valueOf(countOfTradeBills)));
+                if (createdGroupNode == null) {
+                    createdGroupNode = new GroupNode(connectedNode.getId(), countOfTradeBills, 1 + "件商品", "group" + connectedNode.getId());
+                    hashGroupedNodes.put(createdGroupNode.getId(), createdGroupNode);
+                }
+                createdGroupNode.appendUserObject(connectedNode);
+                createdGroupNode.setLabel(createdGroupNode.getUserObjects().size() + "件商品");
+
+                String edgeKey = String.valueOf(selfNode.getId()) + String.valueOf(createdGroupNode.getId());
+                if (!hashEdges.containsKey(edgeKey)) {
+                    hashEdges.put(edgeKey, new Edge(selfNode.getId(), createdGroupNode.getId(), countOfTradeBills, String.valueOf(countOfTradeBills)));
                 }
             }
 
-            if (hashNodes.size() > 0) {
+            if (hashGroupedNodes.size() > 0) {
                 Pageable numberIidPageRequest = new PageRequest(0, 1000);
                 while (true) {
-                    Page<ProductEntity> productEntities = productEntityRepository.findAllByNumberIids(hashNodes.keySet(), numberIidPageRequest);
+                    Page<ProductEntity> productEntities = productEntityRepository.findAllByNumberIids(cachedNodes.keySet(), numberIidPageRequest);
                     for (ProductEntity e : productEntities.getContent()) {
-                        if (hashNodes.containsKey(e.getNumberIid())) {
-                            hashNodes.get(e.getNumberIid()).setLabel(e.getTitle());
+                        /*if (hashGroupedNodes.containsKey(e.getNumberIid())) {
+                            Node node = hashGroupedNodes.get(e.getNumberIid());
+                            if (!(node instanceof GroupNode)) {
+                                node.setLabel(e.getTitle());
+                            } else {
+
+                            }
+                        }*/
+                        Long iid = e.getNumberIid();
+                        if (cachedNodes.containsKey(iid)) {
+                            cachedNodes.get(iid).setLabel(e.getTitle());
                         }
                     }
                     if (productEntities.hasNext()) {
@@ -204,6 +230,6 @@ public class ChartsReportService {
             }
         }
 
-        return new Data(new ArrayList<Node>(hashNodes.values()), new ArrayList<Edge>(hashEdges.values()));
+        return new Data(new ArrayList<Node>(hashGroupedNodes.values()), new ArrayList<Edge>(hashEdges.values()));
     }
 }

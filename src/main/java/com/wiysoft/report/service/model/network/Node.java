@@ -1,13 +1,18 @@
 package com.wiysoft.report.service.model.network;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 /**
  * Created by weiliyang on 9/18/15.
  */
 public class Node {
 
-    private long id;
-    private long value;
-    private String label;
+    protected long id;
+    protected long value;
+    protected String label;
+    protected String group;
 
     public long getId() {
         return id;
@@ -33,10 +38,19 @@ public class Node {
         this.label = label;
     }
 
-    public Node(long id, long value, String label) {
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
+    }
+
+    public Node(long id, long value, String label, String group) {
         this.id = id;
         this.value = value;
         this.label = label;
+        this.group = group;
     }
 
     public void incrementValue(long incremental) {

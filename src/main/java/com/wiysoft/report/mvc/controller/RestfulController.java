@@ -171,16 +171,19 @@ public class RestfulController {
         return chartsReportService.reportProductPurchaseProductsByConsumerId(consumerId, page);
     }
 
+    /*
     @RequestMapping(value = "/report/product-purchase-combo/")
     public Object getReportProductPurchaseComboBy(HttpSession session) {
         return getReportProductPurchaseComboBy(null, null, session);
     }
+    */
 
     @RequestMapping(value = "/report/product-purchase-combo/{productNumberIid}/")
     public Object getReportProductPurchaseComboByProductNumberIid(@PathVariable long productNumberIid, HttpSession session) {
         return getReportProductPurchaseComboByProductNumberIid(productNumberIid, null, null, session);
     }
 
+    /*
     @RequestMapping(value = "/report/product-purchase-combo/{startDate}/{endDate}/")
     public Object getReportProductPurchaseComboBy(@PathVariable String startDate, @PathVariable String endDate, HttpSession session) {
         Visitor visitor = (Visitor) session.getAttribute(Constants.SESSION_ATTR_LOGIN_USER);
@@ -193,6 +196,7 @@ public class RestfulController {
                 DateTimeUtils.dateAdjust(CommonUtils.parseStrToDate(endDate, "yyyy-MM-dd"), Calendar.DAY_OF_YEAR, 1));
         return chartsReportService.reportProductPurchaseComboBySellerIdAndPayTime(visitor.getVisitorId(), dateStart, dateEnd, null);
     }
+    */
 
     @RequestMapping(value = "/report/product-purchase-combo/{productNumberIid}/{startDate}/{endDate}/")
     public Object getReportProductPurchaseComboByProductNumberIid(@PathVariable long productNumberIid, @PathVariable String startDate, @PathVariable String endDate, HttpSession session) {
