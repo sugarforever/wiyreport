@@ -7,8 +7,10 @@
             <input type="submit" value="查询" class="submit" />
         </div>
     </form>
-    <div>
-        <canvas class="chart report-canvas"></canvas>
+    <div class="report-canvas-wrapper">
+        <div>
+            <canvas class="chart report-canvas"></canvas>
+        </div>
     </div>
 </div>
 <script type="text/javascript">
