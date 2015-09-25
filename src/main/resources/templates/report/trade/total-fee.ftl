@@ -1,13 +1,17 @@
 <div class="trade-total-fee">
-    <h1 class="report-title">订单金额报表</h1>
+    <div class="report-title">订单金额报表</div>
     <form class="datetime-form" action="#">
-        <div>
+        <div class="datetime-selector">
             <label for="datetime-start">起始日期</label><input id="datetime-start-total-fee" class="datetimepicker datetime-start" type="text" >
             <label for="datetime-end">结束日期</label><input id="datetime-end-total-fee" class="datetimepicker datetime-end" type="text" >
             <input type="submit" value="查询" class="submit" />
         </div>
     </form>
-    <canvas class="chart report-canvas"></canvas>
+    <div class="report-canvas-wrapper">
+        <div>
+            <canvas class="chart report-canvas"></canvas>
+        </div>
+    </div>
 </div>
 <script type="text/javascript">
     jQuery('.centerwell .datetimepicker').datetimepicker({

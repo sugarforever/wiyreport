@@ -1,5 +1,5 @@
 <div class="product-combo">
-    <h1 class="report-title">商品购买组合网络图谱</h1>
+    <div class="report-title">商品购买组合网络图谱</div>
     <div class="product-select">
         <input type="button" class="product-select-button" /><input type="text" disabled class="product-title" placeholder="点击图标选择商品进行特定商品购买组合分析"/>
         <script type="text/javascript">

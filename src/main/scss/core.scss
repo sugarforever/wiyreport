@@ -5,8 +5,6 @@ body {
 
 h1 {
     font-size: 1.4em;
-    padding: 16px 0px;
-    margin: 0px;
 }
 
 h2 {
@@ -51,27 +49,34 @@ h2 {
         width: 170px;
         background-color: #0191C8;
         float: left;
-        padding-left: 24px;
         box-sizing: border-box;
         height: 100%;
 
         ul {
             list-style-type: none;
             margin: 0px;
-            padding: 12px 0px 0px 0px;
+            padding: 0px 0px 0px 0px;
 
             li {
-                padding-top: 6px;
-                padding-bottom: 6px;
 
                 a {
                     text-decoration: none;
                     color: white;
                     font-size: 14px;
+                    line-height: 36px;
+                    display: block;
+                    padding-left: 24px;
+                    border-top: 1px #ababab solid;
 
                     &:hover {
-                        text-decoration: underline;
                         color: #fcf141;
+                        background: #0191DF;
+                    }
+                }
+
+                &:last-child {
+                    a {
+                        border-bottom: 1px #ababab solid;
                     }
                 }
             }
@@ -79,31 +84,29 @@ h2 {
     }
 
     .centerwell {
+        background-color: #ededed;
         width: auto;
-        margin-left: 200px;
+        margin-left: 170px;
         height: 100%;
         overflow-y: scroll;
-        padding-right: 36px;
+        padding-right: 30px;
+        padding-left: 30px;
+        padding-bottom: 30px;
+        box-sizing: border-box;
 
-        .datetime-form {
-            .datetimepicker {
-                font-size: 14px;
-                padding: 4px;
-                width: 120px;
-                margin-left: 4px;
-                vertical-align: middle;
-            }
-
-            .submit {
-                font-size: 14px;
-                vertical-align: middle;
-                border: none;
-                height: 29px;
-                width: 64px;
-                background-color: #8C8984;
-                color: #ffffff;
-            }
+        table {
+            background-color: #ffffff;
         }
+
+        .report-title {
+            margin: 16px 0px;
+            font-size: 24px;
+            line-height: 24px;
+            font-weight: bold;
+            border-left: solid 3px #005B9A;
+            padding-left: 8px;
+        }
+
         .consumer-matrix {
             tr {
                 td, th {
@@ -140,7 +143,7 @@ h2 {
                     }
 
                     &.title {
-                        width: 400px;
+                        width: 500px;
                     }
 
                     &.price {
@@ -190,6 +193,17 @@ h2 {
             }
 
         }
+
+        .report-canvas-wrapper {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+            border: 1.1px solid #e7e7e7;
+            background-color: #ffffff;
+            box-sizing: border-box;
+
+            div {
+                margin: 8px;
+            }
+        }
     }
 }
 
@@ -212,11 +226,16 @@ h2 {
 
 .product-select {
 
+    background-color: #ffffff;
+    padding: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    border: 1.1px solid #e7e7e7;
+
     .product-title {
         height: 28px;
         width: 600px;
         font-size: 14px;
-        border: solid 1px #bfbfbf;
+        border: solid 1px #dfdfdf;
     }
 
     .product-select-button {
@@ -354,6 +373,11 @@ h2 {
         .product-combo-selected-node {
             float: right;
             display: none;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+            border: 1.1px solid #e7e7e7;
+            background-color: white;
+            padding: 4px;
+            box-sizing: border-box;
 
             &.show-connected-nodes {
                 width: 300px;
@@ -362,12 +386,13 @@ h2 {
 
             .summary {
                 font-size: 12px;
+                line-height: 16px;
                 margin-bottom: 4px;
                 border-left: solid 2px #005B9A;
                 padding-left: 4px;
 
                 label.times {
-                    font-size: 12px;
+                    font-size: 16px;
                     font-weight: bold;
                     color: #0191C8;
                 }
@@ -409,6 +434,51 @@ h2 {
             &.show-connected-nodes {
                 margin-right: 306px;
             }
+        }
+    }
+}
+
+.datetime-selector {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    border: 1.1px solid #e7e7e7;
+    padding: 8px;
+    box-sizing: border-box;
+    background-color: #ffffff;
+
+    label {
+        font-size: 14px;
+    }
+
+    .datetimepicker {
+        font-size: 14px;
+        padding: 4px;
+        width: 120px;
+        margin-left: 4px;
+        vertical-align: middle;
+
+        &:focus {
+            border: solid 1px #4184f3;
+            border-radius: 1px;
+            outline: none;
+        }
+    }
+
+    .submit {
+        font-size: 14px;
+        vertical-align: middle;
+        border: 1.1px solid #d3d3d3;
+        border-radius: 2px;
+        height: 29px;
+        width: 64px;
+        background-color: #fff;
+        background-image: -webkit-linear-gradient(top,rgba(0,0,0,0),rgba(0,0,0,0.02));
+        color: #424242;
+        cursor: pointer;
+        margin-left: 8px;
+
+        &:hover {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+            border-color: #ccc;
         }
     }
 }

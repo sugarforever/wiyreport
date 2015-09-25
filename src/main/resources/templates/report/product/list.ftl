@@ -1,6 +1,6 @@
 <#import "../../modules/pagination-bar.ftl" as paginationBar>
 <div class="product-list">
-    <h1 class="report-title">商品列表</h1>
+    <div class="report-title">商品列表</div>
     <@paginationBar.pagination divId="product-list-pagination-bar" api="/rest/report/products/" page=0 callback="rebuildProductMatrixTable" />
     <table class="product-matrix" cellpadding="0" cellspacing="0">
         <thead>

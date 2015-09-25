@@ -1,6 +1,6 @@
 <#import "../../modules/pagination-bar.ftl" as paginationBar>
 <div class="consumer-list">
-    <h1 class="report-title">买家列表</h1>
+    <div class="report-title">买家列表</div>
     <@paginationBar.pagination
     divId="consumer-list-pagination-bar"
     api="/rest/report/consumers/"
