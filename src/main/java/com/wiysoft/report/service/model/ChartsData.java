@@ -38,7 +38,7 @@ public class ChartsData {
         }
     }
 
-    public void appendDataset(ChartsDataset dataset) {
+    public ChartsDataset appendDataset(ChartsDataset dataset) {
         if (dataset != null) {
             if (datasets == null) {
                 datasets = new ArrayList<ChartsDataset>();
@@ -46,5 +46,7 @@ public class ChartsData {
 
             datasets.add(dataset);
         }
+
+        return dataset;
     }
 }

@@ -265,35 +265,6 @@ public class DAOService {
         }
     }
 
-    private List getCrc32sListByTradeEntities(List<TradeEntity> tradeEntities) {
-        List crc32s = new ArrayList();
-        for (TradeEntity tradeEntity : tradeEntities) {
-            Long crc32 = CommonUtils.getCRC32(tradeEntity.getBuyerNick());
-            if (!crc32s.contains(crc32)) {
-                crc32s.add(crc32);
-            }
-        }
-        return crc32s;
-    }
-
-    private Hashtable<String, ConsumerEntity> getConsumerEntityHashtableByConsumerNickCrc32s(Long sellerId, List crc32s) {
-        Hashtable<String, ConsumerEntity> consumerEntityHashtable = new Hashtable<String, ConsumerEntity>();
-        Pageable pagination = new PageRequest(0, 1000);
-        while (true) {
-            Page<ConsumerEntity> queryPage = consumerEntityRepository.findAllConsumerEntitiesByCRC32(sellerId, crc32s, pagination);
-            for (ConsumerEntity e : queryPage.getContent()) {
-                consumerEntityHashtable.put(e.getConsumerNick(), e);
-            }
-
-            if (queryPage.hasNext()) {
-                pagination = pagination.next();
-            } else {
-                break;
-            }
-        }
-
-        return consumerEntityHashtable;
-    }
 
     public void buildProductEntitiesBy(Date dateStart, Date dateEnd) {
         if (dateStart == null) {
@@ -347,11 +318,8 @@ public class DAOService {
         insertOrUpdateProductEntitiesWithThresholdAndClear(productEntityHashtable, 1);
     }
 
-    private void insertOrUpdateProductEntitiesWithThresholdAndClear(Hashtable<Long, ProductEntity> productEntityHashtable, long threshold) {
-        if (productEntityHashtable != null && productEntityHashtable.size() >= threshold) {
-            insertOrUpdateProductEntities(productEntityHashtable);
-            productEntityHashtable.clear();
-        }
+    public Date findMaxPayTimeInProductPurchaseMeasurement() {
+        return productPurchaseComboMeasurementRepository.findMaxPayTime();
     }
 
     public ConsumerEntity findConsumerEntityById(long consumerId) {
@@ -411,6 +379,13 @@ public class DAOService {
         insertOrUpdateProductPurchaseComboMeasurementWithThresholdAndClear(measurements, 1);
     }
 
+    private void insertOrUpdateProductEntitiesWithThresholdAndClear(Hashtable<Long, ProductEntity> productEntityHashtable, long threshold) {
+        if (productEntityHashtable != null && productEntityHashtable.size() >= threshold) {
+            insertOrUpdateProductEntities(productEntityHashtable);
+            productEntityHashtable.clear();
+        }
+    }
+
     private void insertOrUpdateProductPurchaseComboMeasurementWithThresholdAndClear(List<ProductPurchaseComboMeasurement> measurements, int threshold) {
         if (measurements != null && measurements.size() >= threshold) {
             productPurchaseComboMeasurementRepository.save(measurements);
@@ -418,7 +393,34 @@ public class DAOService {
         }
     }
 
-    public Date findMaxPayTimeInProductPurchaseMeasurement() {
-        return productPurchaseComboMeasurementRepository.findMaxPayTime();
+
+    private List getCrc32sListByTradeEntities(List<TradeEntity> tradeEntities) {
+        List crc32s = new ArrayList();
+        for (TradeEntity tradeEntity : tradeEntities) {
+            Long crc32 = CommonUtils.getCRC32(tradeEntity.getBuyerNick());
+            if (!crc32s.contains(crc32)) {
+                crc32s.add(crc32);
+            }
+        }
+        return crc32s;
+    }
+
+    private Hashtable<String, ConsumerEntity> getConsumerEntityHashtableByConsumerNickCrc32s(Long sellerId, List crc32s) {
+        Hashtable<String, ConsumerEntity> consumerEntityHashtable = new Hashtable<String, ConsumerEntity>();
+        Pageable pagination = new PageRequest(0, 1000);
+        while (true) {
+            Page<ConsumerEntity> queryPage = consumerEntityRepository.findAllConsumerEntitiesByCRC32(sellerId, crc32s, pagination);
+            for (ConsumerEntity e : queryPage.getContent()) {
+                consumerEntityHashtable.put(e.getConsumerNick(), e);
+            }
+
+            if (queryPage.hasNext()) {
+                pagination = pagination.next();
+            } else {
+                break;
+            }
+        }
+
+        return consumerEntityHashtable;
     }
 }

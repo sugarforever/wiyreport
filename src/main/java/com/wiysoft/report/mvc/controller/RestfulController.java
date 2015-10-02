@@ -5,6 +5,7 @@ import com.wiysoft.report.common.CommonUtils;
 import com.wiysoft.report.common.DateTimeUtils;
 import com.wiysoft.report.entity.ConsumerEntity;
 import com.wiysoft.report.entity.ProductEntity;
+import com.wiysoft.report.entity.TimeRangeEntity;
 import com.wiysoft.report.entity.Visitor;
 import com.wiysoft.report.mvc.model.TimeRange;
 import com.wiysoft.report.repository.ConsumerEntityRepository;
@@ -14,7 +15,9 @@ import com.wiysoft.report.repository.VisitorRepository;
 import com.wiysoft.report.service.CommonService;
 import com.wiysoft.report.service.RefreshTokenJob;
 import com.wiysoft.report.service.model.ChartsData;
+import com.wiysoft.report.service.reports.Category;
 import com.wiysoft.report.service.reports.ChartsReportService;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * Created by weiliyang on 7/24/15.
@@ -209,5 +213,45 @@ public class RestfulController {
         Date dateEnd = (endDate == null ? DateTimeUtils.dateAdjust(Calendar.getInstance().getTime(), Calendar.DAY_OF_YEAR, 1) :
                 DateTimeUtils.dateAdjust(CommonUtils.parseStrToDate(endDate, "yyyy-MM-dd"), Calendar.DAY_OF_YEAR, 1));
         return chartsReportService.reportProductPurchaseComboBySellerIdAndPayTime(visitor.getVisitorId(), dateStart, dateEnd, productNumberIid);
+    }
+
+    @RequestMapping(value = "/report/product-purchase-time-range/{category}/{productNumberIids}/{timeRangeFormat}/{timeRangeExpression}")
+    public Object getReportProductPurchaseByProductNumberIidWithinTimeRanges(@PathVariable String category, @PathVariable String productNumberIids, @PathVariable String timeRangeFormat, @PathVariable String timeRangeExpression, HttpSession session) {
+        Visitor visitor = (Visitor) session.getAttribute(Constants.SESSION_ATTR_LOGIN_USER);
+        if (visitor == null || StringUtils.isEmpty(timeRangeExpression) || productNumberIids == null) {
+            return null;
+        }
+
+        String[] strTimeRanges = timeRangeExpression.split("\\|");
+        if (strTimeRanges.length % 2 != 0) {
+            return null;
+        }
+
+        List productNumberIidList = new ArrayList();
+        for (String s : productNumberIids.split("\\|")) {
+            productNumberIidList.add(Long.parseLong(s));
+        }
+
+        List<TimeRangeEntity> timeRangeEntities = new ArrayList<TimeRangeEntity>();
+        for (int i = 0; i < strTimeRanges.length - 1; i = i + 2) {
+            String strDateStart = strTimeRanges[i];
+            String strDateEnd = strTimeRanges[i + 1];
+
+            TimeRangeEntity timeRangeEntity = new TimeRangeEntity();
+            timeRangeEntity.setStartDate(CommonUtils.parseStrToDate(strDateStart, timeRangeFormat));
+            timeRangeEntity.setEndDate(CommonUtils.parseStrToDate(strDateEnd, timeRangeFormat));
+
+            timeRangeEntities.add(timeRangeEntity);
+        }
+
+        if ("payment".equals(category)) {
+            return chartsReportService.reportProductPurchaseOfProductNumberIidWithinTimeRangesBySellerid(Category.payment,
+                    visitor.getVisitorId(), productNumberIidList, timeRangeEntities, timeRangeFormat);
+        } else if ("number".equals(category)) {
+            return chartsReportService.reportProductPurchaseOfProductNumberIidWithinTimeRangesBySellerid(Category.number,
+                    visitor.getVisitorId(), productNumberIidList, timeRangeEntities, timeRangeFormat);
+        } else {
+            return null;
+        }
     }
 }

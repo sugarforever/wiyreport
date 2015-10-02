@@ -1,10 +1,78 @@
 /**
  * Created by weiliyang on 9/1/15.
  */
+Chart.types.Bar.extend({
+    name: "Bar2Y",
+    getScale: function (data) {
+        var startPoint = this.options.scaleFontSize;
+        var endPoint = this.chart.height - (this.options.scaleFontSize * 1.5) - 5;
+        return Chart.helpers.calculateScaleRange(
+            data,
+            endPoint - startPoint,
+            this.options.scaleFontSize,
+            this.options.scaleBeginAtZero,
+            this.options.scaleIntegersOnly);
+    },
+    initialize: function (data) {
+        var y2datasetLabels = [];
+        var y2data = [];
+        var y1data = [];
+        data.datasets.forEach(function (dataset, i) {
+            if (dataset.y2axis == true) {
+                y2datasetLabels.push(dataset.label);
+                y2data = y2data.concat(dataset.data);
+            } else {
+                y1data = y1data.concat(dataset.data);
+            }
+        });
+
+        // use the helper function to get the scale for both datasets
+        var y1Scale = this.getScale(y1data);
+        this.y2Scale = this.getScale(y2data);
+        var normalizingFactor = y1Scale.max / this.y2Scale.max;
+
+        // update y2 datasets
+        data.datasets.forEach(function (dataset) {
+            if (y2datasetLabels.indexOf(dataset.label) !== -1) {
+                dataset.data.forEach(function (e, j) {
+                    dataset.data[j] = e * normalizingFactor;
+                })
+            }
+        })
+
+        // denormalize tooltip for y2 datasets
+        this.options.multiTooltipTemplate = function (d) {
+            if (y2datasetLabels.indexOf(d.datasetLabel) !== -1)
+                return Math.round(d.value / normalizingFactor, 6);
+            else
+                return d.value;
+        }
+
+        Chart.types.Bar.prototype.initialize.apply(this, arguments);
+    },
+    draw: function () {
+        this.scale.xScalePaddingRight = this.scale.xScalePaddingLeft;
+        Chart.types.Bar.prototype.draw.apply(this, arguments);
+
+        this.chart.ctx.textAlign = 'left';
+        this.chart.ctx.textBaseline = "middle";
+        this.chart.ctx.fillStyle = "#666";
+        var yStep = (this.scale.endPoint - this.scale.startPoint) / this.y2Scale.steps
+        for (var i = 0, y = this.scale.endPoint, label = this.y2Scale.min;
+             i <= this.y2Scale.steps;
+             i++) {
+            this.chart.ctx.fillText(label, this.chart.width - this.scale.xScalePaddingRight + 10, y);
+            y -= yStep;
+            label += this.y2Scale.stepValue
+        }
+    }
+});
+
 function Vaseline() {
     var self = this;
     self.charts = [];
     self.productSelectionListeners = [];
+    self.colors = ['#99CCFF', '#FFCC00', '#99CC99', '#FF9966', '#FFCC99', '#3399FF', '#003366'];
 
     self.init = function () {
         Chart.defaults.global.responsive = true;
@@ -47,6 +115,28 @@ function Vaseline() {
             chart = new Chart(context).Bar(response, {});
             self.charts[context] = chart;
         });
+    };
+
+    self.chartJsReport = function (jsonUrl, data, context, chartOptions, chartType, callback) {
+        $.getJSON(jsonUrl, data, function (response) {
+            var chart = self.charts[context];
+            if (chart != null) {
+                chart.destroy();
+            }
+            self.fillColorsInDatasets(response.datasets);
+            chart = new Chart(context).Bar(response, chartOptions);
+            self.charts[context] = chart;
+
+            callback(chart, response.datasets);
+        });
+    };
+
+    self.fillColorsInDatasets = function (datasets) {
+        var l = self.colors.length;
+        for (var i = 0; i < datasets.length; ++i) {
+            var ds = datasets[i];
+            ds.fillColor = self.colors[i % l];
+        }
     };
 
     self.fetchProducts = function (tableBodySelector, page) {
@@ -108,7 +198,7 @@ function Vaseline() {
         self.cachedUserObjects = [];
         self.visContainerId = 'product-combo-network-topo';
 
-        self.init = function() {
+        self.init = function () {
             self.jQueryTopoWrapper = $(".product-combo-network-topo-wrapper");
             self.jQueryTopo = $("#product-combo-network-topo");
             self.jQueryComboNodes = $(".product-combo-selected-node");
@@ -138,7 +228,7 @@ function Vaseline() {
             dlg.removeClass("slide-down-anim");
         };
 
-        self.collapseNetwork = function() {
+        self.collapseNetwork = function () {
             if (!self.jQueryTopoWrapper.hasClass("show-connected-nodes")) {
                 self.jQueryTopoWrapper.addClass("show-connected-nodes");
                 self.network.setSize(self.jQueryTopoWrapper.outerWidth() + 'px', '80%');
@@ -148,7 +238,7 @@ function Vaseline() {
                 self.jQueryComboNodes.addClass("show-connected-nodes");
             }
         };
-        self.expandNetwork = function() {
+        self.expandNetwork = function () {
             if (self.jQueryTopoWrapper.hasClass("show-connected-nodes")) {
                 self.jQueryTopoWrapper.removeClass("show-connected-nodes");
                 if (self.network != null && self.network != undefined) {
@@ -193,7 +283,8 @@ function Vaseline() {
                         shape: 'dot',
                         color: {
                             hover: {background: '#fcf141'},
-                            highlight: {background: '#ffffff'}}
+                            highlight: {background: '#ffffff'}
+                        }
                     },
                     edges: {
                         color: {hover: '#fcf141'}
@@ -225,4 +316,25 @@ function Vaseline() {
             });
         };
     });
+
+    self.initDateTimePickers = function () {
+        jQuery('.datetimepicker').datetimepicker({
+            lang: 'zh',
+            i18n: {
+                zh: {
+                    months: [
+                        '一月', '二月', '三月', '四月',
+                        '五月', '六月', '七月', '八月',
+                        '九月', '十月', '十一月', '十二月',
+                    ],
+                    dayOfWeek: [
+                        "周日", "周一", "周二", "周三",
+                        "周四", "周五", "周六",
+                    ]
+                }
+            },
+            timepicker: false,
+            format: 'Y-m-d'
+        });
+    };
 }
