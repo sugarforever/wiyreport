@@ -514,11 +514,16 @@ h2 {
 
 .adhoc-time-ranges-builder {
 
+  form {
+    margin-bottom: 0px;
+  }
+
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
   border: 1.1px solid #e7e7e7;
   padding: 8px;
   box-sizing: border-box;
   background-color: #ffffff;
+  margin-bottom: 1em;
 
   label {
     font-size: 14px;
@@ -540,6 +545,34 @@ h2 {
     &.datetime-start {
       margin-right: 24px;
     }
+    &.datetime-end {
+      margin-left: 24px;
+    }
+  }
+
+  .actions {
+    .add {
+      outline: none;
+      height: 24px;
+      width: 24px;
+      background-image: url("/images/add_button.png");
+      background-color: transparent;
+      opacity: 0.8;
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+      border: none;
+
+      &:hover {
+        opacity: 1.0;
+        cursor: pointer;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+      }
+    }
+
+    margin-bottom: 1.4em;
   }
 
   .submit {
@@ -553,16 +586,58 @@ h2 {
     background-image: -webkit-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.02));
     color: #424242;
     cursor: pointer;
+    outline: none;
 
     &:hover {
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
       border-color: #ccc;
+      background-color: #005B9A;
+      color: #ffffff;
+      transition: background-color 240ms, color 240ms;
     }
   }
 
   .time-ranges {
     .time-range {
       margin-bottom: 6px;
+      padding-bottom: 6px;
+
+      .delete {
+        vertical-align: middle;
+        margin-left: 16px;
+        opacity: 0.8;
+        padding: 1px;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+        border: solid 1px transparent;
+
+        &:hover {
+          cursor: pointer;
+          opacity: 1.0;
+          border: solid 1px #A2A2A2;
+          border-radius: 3px;
+          -webkit-box-sizing: border-box;
+          -moz-box-sizing: border-box;
+          box-sizing: border-box;
+        }
+      }
     }
+  }
+}
+
+.shadow-border {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  border: 1.1px solid #e7e7e7;
+}
+
+.single-product-purchase {
+  .description {
+    background-color: white;
+    display: inline-block;
+    margin-bottom: 4px;
+    width: 100%;
+    box-sizing: border-box;
+    padding-left: 8px;
   }
 }

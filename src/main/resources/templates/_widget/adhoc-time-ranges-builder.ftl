@@ -1,26 +1,40 @@
-<#macro adhocTimeRangesBuilder wrapper_id>
+<#macro adhocTimeRangesBuilder wrapper_id multiple=false>
 <div id="${wrapper_id}" class="adhoc-time-ranges-builder">
     <form class="datetime-form" action="#">
         <div class="time-ranges">
             <div class="time-range">
-                <label for="datetime-start">起始日期</label><input id="datetime-start-total-fee" class="datetimepicker datetime-start" type="text" >
-                <label for="datetime-end">结束日期</label><input id="datetime-end-total-fee" class="datetimepicker datetime-end" type="text" >
+                <label for="datetime-start">时间区段</label><input id="datetime-start-total-fee" class="datetimepicker datetime-start" type="text" >
+                <label for="datetime-end">~</label><input id="datetime-end-total-fee" class="datetimepicker datetime-end" type="text" >
+                <#if multiple>
+                    <img class="delete" src="/images/delete_button.png" />
+                </#if>
             </div>
         </div>
-        <div class="actions">
-            <input type="button" value="+" class="add" />
-        </div>
+        <#if multiple>
+            <div class="actions">
+                <input type="button" class="add" />
+            </div>
+        </#if>
         <input type="submit" value="查询" class="submit" />
     </form>
 </div>
 <script type="text/javascript">
     $(document).ready(function() {
-       $("#${wrapper_id} .add").click(function(e) {
-           var timeRanges = $("#${wrapper_id} .time-ranges");
-           var cloned = timeRanges.find("div:first-child").clone();
-           timeRanges.append(cloned);
-           vaseline.initDateTimePickers();
-       });
+        var self = this;
+        self.timeRanges = $("#${wrapper_id} .time-ranges");
+        self.cloned = self.timeRanges.find("div:first-child").clone();
+        $("#${wrapper_id} .add").click(function(e) {
+            var c = self.cloned.clone();
+            c.find(".delete").click(function(e) {
+               $(this).parent().remove();
+            });
+            self.timeRanges.append(c);
+            vaseline.initDateTimePickers();
+        });
+
+        $("#${wrapper_id} .delete").click(function(e) {
+            $(this).parent().remove();
+        });
     });
 </script>
 </#macro>

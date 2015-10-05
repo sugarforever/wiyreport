@@ -1,7 +1,10 @@
 <#import "../../_widget/adhoc-time-ranges-builder.ftl" as widget>
 <div class="single-product-purchase">
     <div class="report-title">商品销售趋势分析</div>
-    <@widget.adhocTimeRangesBuilder wrapper_id="single-product-adhoc-time-ranges-builder" />
+    <div class="description shadow-border">
+        <pre>#商品销售趋势分析#允许您选择商品，比较其在不同时间区段的销售情况，从而检验不同时间段的商品销售策略的实施效果。</pre>
+    </div>
+    <@widget.adhocTimeRangesBuilder wrapper_id="single-product-adhoc-time-ranges-builder" multiple=true/>
     <div class="report-canvas-wrapper">
         <div>
             <canvas class="chart report-canvas"></canvas>
