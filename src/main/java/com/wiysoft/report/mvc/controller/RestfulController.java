@@ -155,13 +155,14 @@ public class RestfulController {
         return consumerEntitiesPage.getContent();
     }
 
-    @RequestMapping(value = "/report/products/{page}")
-    public Object getReportProducts(@PathVariable int page, HttpSession session) {
+    @RequestMapping(value = "/report/products/{page}/{pageSize}")
+    public Object getReportProducts(@PathVariable int page, @PathVariable int pageSize, HttpSession session) {
         Visitor visitor = (Visitor) session.getAttribute(Constants.SESSION_ATTR_LOGIN_USER);
         if (visitor == null) {
             return null;
         }
-        Page<ProductEntity> p = productEntityRepository.findAllBySellerId(visitor.getVisitorId(), new PageRequest(page, 50));
+        Pageable pageable = new PageRequest(page, pageSize > 50 ? 50 : pageSize);
+        Page<ProductEntity> p = productEntityRepository.findAllBySellerId(visitor.getVisitorId(), pageable);
         return p.getContent();
     }
 

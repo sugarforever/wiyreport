@@ -4,6 +4,7 @@
         divId="product-selector-pagination-bar"
         api="/rest/report/products/"
         page=0
+        pageSize=20
         callback="rebuildProductSelectorTable" />
     <table cellpadding="0" cellspacing="0">
         <thead>

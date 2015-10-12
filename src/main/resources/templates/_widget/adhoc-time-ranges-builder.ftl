@@ -1,6 +1,6 @@
 <#macro adhocTimeRangesBuilder wrapper_id multiple=false>
-<div id="${wrapper_id}" class="adhoc-time-ranges-builder">
-    <form class="datetime-form" action="#">
+<div id="${wrapper_id}" class="shadow-border adhoc-time-ranges-builder">
+    <div class="datetime-form">
         <div class="time-ranges">
             <div class="time-range">
                 <label for="datetime-start">时间区段</label><input id="datetime-start-total-fee" class="datetimepicker datetime-start" type="text" >
@@ -15,8 +15,7 @@
                 <input type="button" class="add" />
             </div>
         </#if>
-        <input type="submit" value="查询" class="submit" />
-    </form>
+    </div>
 </div>
 <script type="text/javascript">
     $(document).ready(function() {

@@ -161,6 +161,12 @@ function Vaseline() {
         });
     };
 
+    self.callPaginationApi = function (api, page, pageSize, callback) {
+        $.getJSON(api + "/" + page + "/" + pageSize, function (response) {
+            callback(response);
+        });
+    };
+
     self.fetchConsumers = function (page, callback) {
         $.getJSON("/rest/report/consumers/" + page, function (response) {
             callback(response);
@@ -185,10 +191,10 @@ function Vaseline() {
         }
     };
 
-    self.onProductSelected = function (productNumIid, productTitle) {
+    self.onProductSelected = function (productNumIid, productTitle, productPicturePath) {
         for (var i = 0; i < self.productSelectionListeners.length; ++i) {
             var func = self.productSelectionListeners[i];
-            func(productNumIid, productTitle);
+            func(productNumIid, productTitle, productPicturePath);
         }
     };
 
@@ -337,4 +343,94 @@ function Vaseline() {
             format: 'Y-m-d'
         });
     };
+
+    self.getTimeRanges = function(adhocTimeRangesBuilderSelector) {
+        var builder = $(adhocTimeRangesBuilderSelector);
+        var timeRanges = [];
+        $.each(builder.find(".time-range"), function(k, v) {
+            var start = $(v).find(".datetime-start").val();
+            var end = $(v).find(".datetime-end").val();
+            if (start && !/^\s*$/.test(start) && end && !/^\s*$/.test(end)) {
+                timeRanges.push(start);
+                timeRanges.push(end);
+            }
+        });
+        return timeRanges.length == 0 ? '' : timeRanges.join("|");
+    }
+}
+
+function MultipleProductsSelectBuilder(builderSelector, onProductSelectedCallback) {
+    var self = this;
+    self.builder = $(builderSelector);
+    self.dialogProducts = self.builder.find(".dialog");
+    self.onProductSelectedCallback = onProductSelectedCallback;
+
+    self.rebuildProductSelectorTable = function(products) {
+        var ulSelectedProducts = self.builder.find(".selected-products ul");
+        var productSelectorTable = self.builder.find("tbody");
+        productSelectorTable.empty();
+        $.each(products, function (k, product) {
+            var alreadySelected = self.isNumberIidSelected(product.numberIid);
+            var row = $("<tr></tr>");
+            if (alreadySelected) {
+                row.addClass("selected");
+            }
+
+            var td = $('<td class="checkbox"></td>');
+            var cb = $('<input type="checkbox" name="selected-product" class="selected-product" '+ (alreadySelected ? "checked" : "") +'>');
+            cb.data("number-iid", product.numberIid);
+            cb.data("title", product.title);
+            cb.data("picture-path", product.picturePath);
+            cb.bind("click", function(e) {
+                if ($(this).prop("checked") == false) {
+                    var iid = $(this).data("number-iid");
+                    $(this).parent().parent().removeClass("selected");
+                    // delete from selected products
+                    // self.selectedProducts[iid] = null;
+                    self.builder.find(".selected-products ul li.number-iid-" + iid).remove();
+                    e.stopPropagation();
+                }
+            });
+            td.append(cb);
+            row.append(td);
+            row.append($('<td class="picture"><img src="' + product.picturePath + '" /></td>'));
+            row.append($('<td class="title">' + product.title + '</td>'));
+            row.bind('click', function (event) {
+                if (!self.isNumberIidSelected(product.numberIid)) {
+                    var li = $("<li></li>");
+                    li.append($('<img src="' + product.picturePath + '"></img>'));
+                    li.append(document.createTextNode(product.title));
+                    li.addClass("number-iid-" + product.numberIid);
+                    li.data("number-iid", product.numberIid);
+                    ulSelectedProducts.append(li);
+                    $(this).addClass("selected");
+                    $(this).find(".selected-product").prop("checked", true);
+                    self.onProductSelectedCallback(product.numberIid, product.title, product.picturePath);
+                }
+            });
+            productSelectorTable.append(row);
+        });
+    };
+
+    self.builder.find(".product-select-button").bind('click', function() {
+        if (self.dialogProducts.hasClass("slide-down-anim")) {
+            self.dialogProducts.hide();
+            self.dialogProducts.removeClass("slide-down-anim");
+        } else {
+            self.dialogProducts.show();
+            self.dialogProducts.addClass("slide-down-anim");
+        }
+    });
+
+    self.getSelectedProductsNumberIid = function() {
+        var iids = [];
+        var lis = self.builder.find(".selected-products ul li");
+        for (var i = 0; i < lis.length; ++i)
+            iids.push($(lis[i]).data("number-iid"));
+        return iids;
+    }
+
+    self.isNumberIidSelected = function(numberIid) {
+        return self.builder.find(".selected-products ul li.number-iid-" + numberIid).length > 0;
+    }
 }
