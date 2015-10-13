@@ -433,4 +433,9 @@ function MultipleProductsSelectBuilder(builderSelector, onProductSelectedCallbac
     self.isNumberIidSelected = function(numberIid) {
         return self.builder.find(".selected-products ul li.number-iid-" + numberIid).length > 0;
     }
+
+    self.closeDialog = function() {
+        self.dialogProducts.hide();
+        self.dialogProducts.removeClass("slide-down-anim");
+    }
 }

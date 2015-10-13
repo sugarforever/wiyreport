@@ -5,8 +5,8 @@
     <div class="description shadow-border">
         <pre>#商品销售趋势分析#允许您选择商品，比较其在不同时间区段的销售情况，从而检验不同时间段的商品销售策略的实施效果。</pre>
     </div>
-    <div>
-        <@widget.adhocTimeRangesBuilder wrapper_id="single-product-adhoc-time-ranges-builder" multiple=true/>
+    <div class="shadow-border conditions">
+        <@widget.adhocTimeRangesBuilder wrapper_id="single-product-adhoc-time-ranges-builder" wrapper_css_classes="shadow-border" multiple=true/>
 
         <@multipleProductSelectorWidget.multipleProductSelector wrapper_id="single-product-multiple-product-selector"
             css_classes="multiple-product-selector" />
@@ -58,7 +58,8 @@
         self.buildReport();
 
         $(".submit").click(function(event) {
-           self.buildReport();
+            builder.closeDialog();
+            self.buildReport();
         });
     });
 </script>

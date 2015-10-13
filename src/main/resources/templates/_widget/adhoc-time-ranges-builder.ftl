@@ -1,5 +1,5 @@
-<#macro adhocTimeRangesBuilder wrapper_id multiple=false>
-<div id="${wrapper_id}" class="shadow-border adhoc-time-ranges-builder">
+<#macro adhocTimeRangesBuilder wrapper_id wrapper_css_classes="" multiple=false>
+<div id="${wrapper_id}" class="adhoc-time-ranges-builder ${wrapper_css_classes}">
     <div class="datetime-form">
         <div class="time-ranges">
             <div class="time-range">
