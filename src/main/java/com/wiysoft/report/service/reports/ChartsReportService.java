@@ -68,13 +68,11 @@ public class ChartsReportService {
         int index = 1;
         while (true) {
             Page<ProductPurchaseMeasurement> page = productPurchaseMeasurementRepository.findAllByConsumerIdAndProductNumIid(
-                    consumerId, numberIid, pageable
-            );
+                    consumerId, numberIid, pageable);
 
             for (ProductPurchaseMeasurement measurement : page.getContent()) {
-                VisData data = new VisData(index++, CommonUtils.parseStrFromDate(measurement.getPayTime(), "yyyy-MM-dd HH:mm:ss") + "\n" + measurement.getPayment().toString() + "元",
-                        CommonUtils.parseStrFromDate(measurement.getPayTime(), "yyyy-MM-dd HH:mm:ss"), null, null);
-                visData.add(data);
+                visData.add(new VisData(index++, CommonUtils.parseStrFromDate(measurement.getPayTime(), "yyyy-MM-dd HH:mm:ss") + "\n" + measurement.getPayment().toString() + "元",
+                        CommonUtils.parseStrFromDate(measurement.getPayTime(), "yyyy-MM-dd HH:mm:ss"), null, null));
             }
 
             if (page.hasNext()) {
@@ -104,15 +102,13 @@ public class ChartsReportService {
     }
 
     public Data reportProductPurchaseComboBySellerIdAndPayTime(long sellerId, Date startPayTime, Date endPayTime, long numberIid) {
-        Date now = Calendar.getInstance().getTime();
-
-        Pageable pageRequest = new PageRequest(0, 1000);
         Hashtable<Long, Node> hashGroupedNodes = new Hashtable<Long, Node>();
         Hashtable<String, Edge> hashEdges = new Hashtable<String, Edge>();
         Hashtable<Long, Node> cachedNodes = new Hashtable<Long, Node>();
+        Date startDate = (startPayTime == null ? new Date(0) : startPayTime);
+        Date endDate = (endPayTime == null ? Calendar.getInstance().getTime() : endPayTime);
+        Pageable pageRequest = new PageRequest(0, 1000);
         while (true) {
-            Date startDate = (startPayTime == null ? new Date(0) : startPayTime);
-            Date endDate = (endPayTime == null ? now : endPayTime);
             Page<Object[]> page = productPurchaseComboMeasurementRepository.findProductPurchaseComboAndCountBySellerIdProductNumberIidAndPayTime(sellerId, numberIid, startDate, endDate, pageRequest);
 
             for (Object[] objs : page.getContent()) {

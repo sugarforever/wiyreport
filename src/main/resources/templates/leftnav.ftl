@@ -1,5 +1,5 @@
 <div class="leftnav">
-    <ul>
+    <ul class="shadow-border">
         <li><a href="?category=trade&report=total-fee" class="anchor-report-total-fee">订单金额报表</a></li>
         <li><a href="?category=trade&report=total-volumn" class="anchor-report-volumn">订单量报表</a></li>
         <li><a href="?category=consumer&report=list" class="anchor-report-consumer-list">买家统计</a></li>

@@ -50,36 +50,30 @@ h2 {
 
   .leftnav {
     width: 170px;
-    background-color: #0191C8;
     float: left;
     box-sizing: border-box;
-    height: 100%;
+    padding: 10px;
 
     ul {
       list-style-type: none;
       margin: 0px;
-      padding: 0px 0px 0px 0px;
+      padding: 0px 0px 30px 0px;
 
       li {
 
         a {
           text-decoration: none;
-          color: white;
           font-size: 14px;
           line-height: 36px;
           display: block;
           padding-left: 24px;
-          border-top: 1px #ababab solid;
-
+          box-sizing: border-box;
+          color: #111111;
           &:hover {
-            color: #fcf141;
-            background: #0191DF;
-          }
-        }
-
-        &:last-child {
-          a {
-            border-bottom: 1px #ababab solid;
+            color: #111111;
+            background-color: #eeeeee;
+            padding-left: 18px;
+            border-left: solid 6px #005B9A;
           }
         }
       }
