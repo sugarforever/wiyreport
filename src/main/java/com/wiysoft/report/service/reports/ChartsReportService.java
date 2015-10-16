@@ -27,8 +27,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.security.acl.Group;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * Created by weiliyang on 8/26/15.
@@ -134,12 +136,9 @@ public class ChartsReportService {
                 // Handle connected node.
                 GroupNode createdGroupNode = null;
                 for (Node createdNode : hashGroupedNodes.values()) {
-                    if (createdNode instanceof GroupNode) {
-                        GroupNode n = (GroupNode) createdNode;
-                        if (n.getValue() == countOfTradeBills.longValue()) {
-                            createdGroupNode = n;
-                            break;
-                        }
+                    if ((createdNode instanceof GroupNode) && createdNode.getValue() == countOfTradeBills.longValue()) {
+                        createdGroupNode = (GroupNode) createdNode;
+                        break;
                     }
                 }
 
@@ -257,16 +256,14 @@ public class ChartsReportService {
         return chartsData;
     }
 
-    private void fillChartsDatasetsWithProductTitle(final Hashtable<Long, ChartsDataset> chartsDatasetHashtable) {
+    private void  fillChartsDatasetsWithProductTitle(final Hashtable<Long, ChartsDataset> chartsDatasetHashtable) {
         Pageable pageable = new PageRequest(0, 10000);
         while (true) {
             Page<ProductEntity> entities = productEntityRepository.findAllByNumberIids(chartsDatasetHashtable.keySet(), pageable);
-            for (ProductEntity e : entities.getContent()) {
-                if (chartsDatasetHashtable.containsKey(e.getNumberIid())) {
-                    chartsDatasetHashtable.get(e.getNumberIid()).setLabel(e.getTitle());
-                    chartsDatasetHashtable.get(e.getNumberIid()).setPicture(e.getPicturePath());
-                }
-            }
+            entities.getContent().stream().filter(e -> chartsDatasetHashtable.containsKey(e.getNumberIid())).forEach(e -> {
+                chartsDatasetHashtable.get(e.getNumberIid()).setLabel(e.getTitle());
+                chartsDatasetHashtable.get(e.getNumberIid()).setPicture(e.getPicturePath());
+            });
             if (entities.hasNext()) {
                 pageable = pageable.next();
             } else {
@@ -277,10 +274,9 @@ public class ChartsReportService {
 
     private ChartsData getChartsData(String simpleDateFormat, Collection collection, Date startCreated, Date endCreated, int step) {
         ChartsData chartsData = new ChartsData();
-        ChartsDataset chartsDataset = new ChartsDataset();
+        ChartsDataset chartsDataset = chartsData.appendDataset(new ChartsDataset());
         SimpleDateFormat fmt = new SimpleDateFormat(simpleDateFormat);
         if (collection != null) {
-
             Date dateIndex = CommonUtils.parseStrToDate(CommonUtils.parseStrFromDate(startCreated, simpleDateFormat), simpleDateFormat);
             Date formattedEndCreated = CommonUtils.parseStrToDate(CommonUtils.parseStrFromDate(endCreated, simpleDateFormat), simpleDateFormat);
             for (Object o : collection) {
@@ -311,7 +307,6 @@ public class ChartsReportService {
                 chartsDataset.appendData(0.0);
                 dateIndex = DateTimeUtils.dateAdjust(dateIndex, step, 1);
             }
-            chartsData.appendDataset(chartsDataset);
         }
 
         return chartsData;

@@ -1,13 +1,17 @@
 package com.wiysoft.report.service.reports;
 
+import com.wiysoft.report.common.CommonUtils;
+import com.wiysoft.report.common.DateTimeUtils;
 import com.wiysoft.report.entity.OrderEntity;
 import com.wiysoft.report.entity.ProductEntity;
 import com.wiysoft.report.repository.ProductEntityRepository;
 import com.wiysoft.report.repository.ProductPurchaseComboMeasurementRepository;
 import com.wiysoft.report.repository.ProductPurchaseMeasurementRepository;
 import com.wiysoft.report.repository.TradeEntityRepository;
+import com.wiysoft.report.service.model.ChartsData;
 import com.wiysoft.report.service.model.network.Data;
 import com.wiysoft.report.service.model.network.Edge;
+import com.wiysoft.report.service.model.network.Node;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,6 +45,62 @@ public class ChartsReportServiceTest {
     private ProductPurchaseComboMeasurementRepository productPurchaseComboMeasurementRepository;
     @Mock
     private LabelService labelService;
+
+    @Test
+    public void test_reportSumTotalFeeBySellerIdStatusNotIn() {
+        long sellerId = 1234L;
+        List status = Arrays.asList(new String[]{"PAID", "COMPLETED"});
+        String sqlDateFormat = "%Y-%m-%d";
+        String simpleDateFormat = "yyyy-MM-dd";
+        Date startCreated = CommonUtils.parseStrToDate("2015-01-02", simpleDateFormat);
+        Date endCreated = CommonUtils.parseStrToDate("2015-01-14", simpleDateFormat);
+
+
+        Date d1 = CommonUtils.parseStrToDate("2015-01-02", simpleDateFormat);
+        Date d2 = CommonUtils.parseStrToDate("2015-01-07", simpleDateFormat);
+        Date d3 = CommonUtils.parseStrToDate("2015-01-08", simpleDateFormat);
+        Date d4 = CommonUtils.parseStrToDate("2015-01-14", simpleDateFormat);
+
+        Double fee1 = 1.1;
+        Double fee2 = 2.2;
+        Double fee3 = 0.0;
+        Double fee4 = 4.4;
+        Mockito.when(tradeEntityRepository.findSumTotalFeeBySellerIdStatusNotIn(sellerId, status, startCreated, endCreated, sqlDateFormat)).thenReturn(Arrays.asList(new Object[]{
+                new Object[]{d1, fee1}, new Object[]{d2, fee2}, new Object[]{d3, fee3}, new Object[]{d4, fee4}
+        }));
+
+        ChartsData chartsData = chartsReportService.reportSumTotalFeeBySellerIdStatusNotIn(sellerId, status, startCreated, endCreated, sqlDateFormat, simpleDateFormat, Calendar.DAY_OF_YEAR);
+        List dataList = chartsData.getDatasets().get(0).getData();
+        List<String> labelList = chartsData.getLabels();
+        Assert.assertEquals(13, dataList.size());
+        Assert.assertEquals(13, labelList.size());
+        Assert.assertEquals(fee1, dataList.get(0));
+        Assert.assertEquals("2015-01-02", labelList.get(0));
+        Assert.assertEquals(0.0, dataList.get(1));
+        Assert.assertEquals("2015-01-03", labelList.get(1));
+        Assert.assertEquals(0.0, dataList.get(2));
+        Assert.assertEquals("2015-01-04", labelList.get(2));
+        Assert.assertEquals(0.0, dataList.get(3));
+        Assert.assertEquals("2015-01-05", labelList.get(3));
+        Assert.assertEquals(0.0, dataList.get(4));
+        Assert.assertEquals("2015-01-06", labelList.get(4));
+        Assert.assertEquals(2.2, dataList.get(5));
+        Assert.assertEquals("2015-01-07", labelList.get(5));
+        Assert.assertEquals(0.0, dataList.get(6));
+        Assert.assertEquals("2015-01-08", labelList.get(6));
+        Assert.assertEquals(0.0, dataList.get(7));
+        Assert.assertEquals("2015-01-09", labelList.get(7));
+        Assert.assertEquals(0.0, dataList.get(8));
+        Assert.assertEquals("2015-01-10", labelList.get(8));
+        Assert.assertEquals(0.0, dataList.get(9));
+        Assert.assertEquals("2015-01-11", labelList.get(9));
+        Assert.assertEquals(0.0, dataList.get(10));
+        Assert.assertEquals("2015-01-12", labelList.get(10));
+        Assert.assertEquals(0.0, dataList.get(11));
+        Assert.assertEquals("2015-01-13", labelList.get(11));
+        Assert.assertEquals(4.4, dataList.get(12));
+        Assert.assertEquals("2015-01-14", labelList.get(12));
+    }
 
     @Test
     public void testReportProductPurchaseProductsByConsumerId() {
@@ -90,7 +150,7 @@ public class ChartsReportServiceTest {
     @Test
     public void test_reportProductPurchaseComboBySellerIdAndPayTime() {
         long sellerId = 1111L;
-        long numberIid = 1234L;
+        long numberIid = 5555L;
         Date startDate = new Date(1000);
         Date endDate = new Date(2000);
 
@@ -114,14 +174,30 @@ public class ChartsReportServiceTest {
         Assert.assertEquals(4, data.getNodes().size());
         Assert.assertEquals(3, data.getEdges().size());
 
-        HashMap edgeValues = new HashMap();
-        edgeValues.put(100L,100L);
-        edgeValues.put(200L,200L);
-        edgeValues.put(300L,300L);
         for (Edge edge : data.getEdges()) {
-            Assert.assertTrue(edgeValues.containsKey(edge.getValue()));
-            edgeValues.remove(edge.getValue());
+            if (edge.getFrom() == 5555L && edge.getTo() == 3333L) {
+                Assert.assertEquals(300L, edge.getValue());
+            } else if (edge.getFrom() == 5555L && edge.getTo() == 6666L) {
+                Assert.assertEquals(100L, edge.getValue());
+            } else if (edge.getFrom() == 5555L && edge.getTo() == 7777L) {
+                Assert.assertEquals(200L, edge.getValue());
+            } else {
+                Assert.fail(String.format("Unexpected edge from %d to %d", edge.getFrom(), edge.getTo()));
+            }
         }
-        Assert.assertEquals(0, edgeValues.size());
+
+        for (Node node : data.getNodes()) {
+            if (node.getId() == 5555L) {
+                Assert.assertEquals(3, node.getValue());
+            } else if (node.getId() == 3333L) {
+                Assert.assertEquals(300, node.getValue());
+            } else if (node.getId() == 6666L) {
+                Assert.assertEquals(100, node.getValue());
+            } else if (node.getId() == 7777L) {
+                Assert.assertEquals(200, node.getValue());
+            } else {
+                Assert.fail("Unexpected node with ID " + node.getId());
+            }
+        }
     }
 }
